@@ -14,7 +14,12 @@ extends = "unity"
 
 [mcp.unity-editor]
 server = "/home/ems/RiderProjects/swizz-unity/unity-project/Library/mcp-server/linux-x64/unity-mcp-server"
-args = ["--port=8080", "--client-transport=stdio"]
+# --port is the SignalR hub port the Editor's in-package client
+# connects to (Unity logs "endpoint: /hub/mcp-server" pointing at
+# this port). --client-transport=stdio means the server speaks MCP
+# over stdio to swizz (the other half of its job). Both ends must
+# agree on the port; 23118 is IvanMurzak's default.
+args = ["--port=23118", "--client-transport=stdio"]
 auto_start = true
 capabilities = [
   "scene.read", "scene.write",
