@@ -22,13 +22,14 @@ target_language = "csharp"
 test_command = ""
 
 [model]
-# Inherit unity profile defaults: qwen2.5-coder:14b for
-# game-architect / unity-engineer, qwen2.5-coder:7b for unity-qa.
-# Cloud is the actual workhorse here (mode=always below).
+# qwen3.6:27B everywhere — already pulled locally and used
+# successfully in swizztest. The unity-local profile overrides every
+# per-agent [agents.<role>].model from the unity profile to match,
+# so no qwen2.5-coder pulls are needed.
 provider = "ollama"
 endpoint = "http://localhost:11434"
-default_model = "qwen2.5-coder:14b"
-gpu_split = 0.65
+default_model = "qwen3.6:27B"
+gpu_split = 0.45
 num_ctx = 16384
 num_predict = 4096
 temperature = 0.15
