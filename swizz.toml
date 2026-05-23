@@ -75,11 +75,13 @@ launch_dir             = "/home/ems/ComfyUI"
 launch_timeout_seconds = 60
 
 [cloud]
-# Always-cloud mode for this project — matches the dev workflow used
-# in swizztest. Local qwen still loads as a fallback if the cloud
-# call declines.
+# Local-first with cloud as fallback. Swizz uses the local Qwen
+# model for every agent call; only escalates to Claude on context
+# overflow or when an agent self-reports {status: "escalate"}.
+# Flip `always = true` if you want every call routed via the cloud
+# provider regardless.
 enabled          = true
-always           = true
+always           = false
 provider         = "anthropic"
 require_approval = false
 
