@@ -47,21 +47,18 @@ feature_prefix = "feature"
 safety_test_before_main = false  # no dotnet test runner wired in MVP
 
 [unity]
-# swizz auto-launches the Editor at run start and reaps it at run end.
-# IvanMurzak/Unity-MCP's auto-generated server binary opens a TCP
-# listener on readiness_port; the launcher's TCPProbe polls it.
-# The [mcp.unity-editor] override lives in .swizz/profiles/unity-local.toml
-# (TOML sections under swizz.toml don't map to MCP config — only
-# profile files do).
-editor_command         = "/home/ems/Unity/Hub/Editor/6000.3.10f1/Editor/Unity"
-project_path           = "/home/ems/RiderProjects/swizz-unity/unity-project"
-launch_timeout_seconds = 90
-# IvanMurzak/Unity-MCP's in-Editor SignalR client connects to the
-# MCP server on this port; the server binary (started via the
-# unity-local profile's [mcp.unity-editor]) must bind the same port.
-# 23118 is the package's default — change here AND in the Editor's
-# "Window → AI Game Developer" panel if you want a different port.
-readiness_port         = 23118
+# Editor is user-managed (you open Unity yourself before swizz run
+# and keep it open across runs — matches normal Unity dev workflow).
+# editor_command is left empty so swizz's launcher is a no-op.
+#
+# IMPORTANT one-time setup inside Unity:
+#   Window → AI Game Developer → click "Stop" on the MCP server.
+# That sets KeepServerRunning=false in the package config, so Unity
+# stops auto-spawning its own MCP server on port 23118 every time
+# the Editor opens — otherwise it competes with the binary swizz
+# spawns via [mcp.unity-editor] in .swizz/profiles/unity-local.toml.
+editor_command = ""
+project_path   = "/home/ems/RiderProjects/swizz-unity/unity-project"
 
 [agents.artist]
 # 2D sprite art via ComfyUI. Lazily spawned when an artist task fires;

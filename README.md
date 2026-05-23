@@ -21,25 +21,29 @@ swizz doctor             # confirms editor binary, project, MCP pkg
 swizz run .swizz/milestones/01-game-of-life-unity.md
 ```
 
-The launcher spins up the Unity Editor (TCP port 8080 readiness
-probe), then the IvanMurzak Unity-MCP server binary attaches over
-stdio. Both are reaped at run end with SIGTERM→SIGKILL escalation.
+Swizz spawns the IvanMurzak Unity-MCP server binary as a subprocess
+on `swizz run`; the Editor (which you keep open separately) connects
+to it as a SignalR client. The server is reaped on run end. Unity
+itself stays user-managed — open the Editor before the run, leave it
+open between runs (standard Unity dev flow).
 
 ## One-time setup
-
-The IvanMurzak Unity-MCP package auto-extracts its MCP server binary
-on first use. Before the first `swizz run`:
 
 1. Open `unity-project/` in Unity (`unityhub` or directly from the
    `Editor/Unity` binary).
 2. Wait for the package import (com.ivanmurzak.unity.mcp via the
    OpenUPM scoped registry in `Packages/manifest.json`).
-3. `Window → AI Game Developer → Auto-generate skills` — this
-   extracts the platform-specific MCP server binary to
+3. `Window → AI Game Developer → Auto-generate skills` — extracts
+   the platform-specific MCP server binary to
    `unity-project/Library/mcp-server/linux-x64/unity-mcp-server`.
-4. Close the Editor; from here on Swizz spawns it itself.
+4. In the same window, click **Stop** on the MCP server. This sets
+   `KeepServerRunning = false` so Unity stops auto-spawning its own
+   copy on port 23118 every time the Editor opens — otherwise it
+   would fight swizz for the port.
 
-`swizz doctor` will warn if the binary is missing.
+After that, the per-run workflow is: open Unity (if not already
+open) → `swizz run <milestone>`. `swizz doctor` will warn if the MCP
+binary is missing or the package isn't in the manifest.
 
 ## Prerequisites
 
