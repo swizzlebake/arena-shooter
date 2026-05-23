@@ -1,0 +1,27 @@
+# Project-local profile that extends the embedded "unity" profile and
+# overrides [mcp.unity-editor] to point at this project's
+# auto-extracted Unity-MCP server binary. IvanMurzak's package writes
+# this binary to {project}/Library/mcp-server/{platform}/ on first
+# Editor launch after running "Window → AI Game Developer →
+# Auto-generate skills".
+
+[profile]
+name = "unity-local"
+display_name = "Unity Game Dev (swizz-unity local)"
+description = "swizz-unity project-local Unity profile (binary path override)."
+version = "0.1.0"
+extends = "unity"
+
+[mcp.unity-editor]
+server = "/home/ems/RiderProjects/swizz-unity/unity-project/Library/mcp-server/linux-x64/unity-mcp-server"
+args = ["--port=8080", "--client-transport=stdio"]
+auto_start = true
+capabilities = [
+  "scene.read", "scene.write",
+  "prefab.read", "prefab.write",
+  "playmode.enter", "playmode.exit",
+  "console.read", "test.run",
+  "asset.import", "asset.refresh",
+  "compilation.check",
+]
+auto_approve_writes = false

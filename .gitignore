@@ -1,0 +1,30 @@
+# Unity-generated dirs (regenerated from Assets/ + ProjectSettings/)
+unity-project/Library/
+unity-project/Logs/
+unity-project/Temp/
+unity-project/Obj/
+unity-project/Build/
+unity-project/Builds/
+unity-project/UserSettings/
+unity-project/MemoryCaptures/
+
+# IDE
+unity-project/.vs/
+unity-project/.idea/
+*.csproj
+*.sln
+*.user
+*.userprefs
+
+# Generated meta for ignored dirs
+unity-project/Library.meta
+unity-project/Logs.meta
+unity-project/Temp.meta
+unity-project/Obj.meta
+
+# Swizz run state — local to a clone; never shared
+.swizz/state/
+
+# OS junk
+.DS_Store
+Thumbs.db

@@ -1,0 +1,85 @@
+# swizz.toml — Unity Game of Life project.
+# Inherits the embedded "unity" profile (extends "default"), which
+# wires the game-architect plugin in for the Architect slot and
+# declares the unity-editor MCP connector pointing at the akiojin
+# unity-mcp-server npm package.
+
+[profile]
+# Project-local profile under .swizz/profiles/unity-local.toml; it
+# extends the embedded "unity" and overrides [mcp.unity-editor] to
+# point at this project's auto-extracted MCP server binary path.
+name = "unity-local"
+
+[project]
+name = "swizz-unity"
+version = "0.1.0"
+target_language = "csharp"
+# Unity tests run inside the Editor via the MCP test.run capability,
+# so swizz's test runner is left empty — the profile's pipeline
+# test_command ("dotnet test") is what fires today; that's a known
+# mismatch that the unity-qa plugin will address once its pipeline
+# wiring lands.
+test_command = ""
+
+[model]
+# Inherit unity profile defaults: qwen2.5-coder:14b for
+# game-architect / unity-engineer, qwen2.5-coder:7b for unity-qa.
+# Cloud is the actual workhorse here (mode=always below).
+provider = "ollama"
+endpoint = "http://localhost:11434"
+default_model = "qwen2.5-coder:14b"
+gpu_split = 0.65
+num_ctx = 16384
+num_predict = 4096
+temperature = 0.15
+top_p = 0.9
+stream = true
+stream_mode = "summary"
+keep_alive = "30m"
+think = false
+
+[git]
+enabled = true
+main_branch = "main"
+develop_branch = "develop"
+feature_prefix = "feature"
+safety_test_before_main = false  # no dotnet test runner wired in MVP
+
+[unity]
+# swizz auto-launches the Editor at run start and reaps it at run end.
+# IvanMurzak/Unity-MCP's auto-generated server binary opens a TCP
+# listener on readiness_port; the launcher's TCPProbe polls it.
+# The [mcp.unity-editor] override lives in .swizz/profiles/unity-local.toml
+# (TOML sections under swizz.toml don't map to MCP config — only
+# profile files do).
+editor_command         = "/home/ems/Unity/Hub/Editor/6000.3.10f1/Editor/Unity"
+project_path           = "/home/ems/RiderProjects/swizz-unity/unity-project"
+launch_timeout_seconds = 90
+readiness_port         = 8080
+
+[agents.artist]
+# 2D sprite art via ComfyUI. Lazily spawned when an artist task fires;
+# the launcher we added in c5f2796 reaps it at run end.
+backend                = "comfyui"
+endpoint               = "http://localhost:8188"
+workflow               = ".swizz/workflows/sd15-simple.json"
+polling_interval_ms    = 500
+launch_command         = "/home/ems/ComfyUI/venv/bin/python"
+launch_args            = ["main.py"]
+launch_dir             = "/home/ems/ComfyUI"
+launch_timeout_seconds = 60
+
+[cloud]
+# Always-cloud mode for this project — matches the dev workflow used
+# in swizztest. Local qwen still loads as a fallback if the cloud
+# call declines.
+enabled          = true
+always           = true
+provider         = "anthropic"
+require_approval = false
+
+[cloud.anthropic]
+api_key_env     = "ANTHROPIC_API_KEY"
+model           = "claude-opus-4-7"
+max_tokens      = 32768
+timeout_seconds = 120
