@@ -25,6 +25,10 @@ unity-project/Obj.meta
 # Swizz run state — local to a clone; never shared
 .swizz/state/
 
+# IvanMurzak Unity-MCP auto-generates per-tool Claude Code skill files
+# inside the project — pure tooling artifacts, regenerated on open.
+unity-project/.claude/
+
 # OS junk
 .DS_Store
 Thumbs.db

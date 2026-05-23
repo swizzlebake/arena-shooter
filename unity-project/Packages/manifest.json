@@ -5,12 +5,12 @@
       "url": "https://package.openupm.com",
       "scopes": [
         "com.ivanmurzak.unity.mcp",
-        "com.openupm"
+        "extensions.unity.playerprefsex"
       ]
     }
   ],
   "dependencies": {
-    "com.ivanmurzak.unity.mcp": "latest",
+    "com.ivanmurzak.unity.mcp": "0.75.1",
     "com.unity.inputsystem": "1.11.2",
     "com.unity.test-framework": "1.4.5",
     "com.unity.multiplayer.center": "1.0.1",
