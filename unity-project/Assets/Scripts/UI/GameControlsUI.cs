@@ -16,17 +16,29 @@ namespace UI
         [SerializeField] private TMP_Text generationLabel;
         [SerializeField] private string generationFormat = "Generation: {0}";
 
+        private bool _subscribed;
+
         private void OnEnable()
         {
-            if (gridView != null) gridView.GenerationChanged += HandleGenerationChanged;
-            if (gridView != null && gridView.Model != null) HandleGenerationChanged(gridView.Model.Generation);
-            else HandleGenerationChanged(0);
+            TrySubscribe();
+        }
+
+        private void Start()
+        {
+            // GridView.Awake constructs the Model; ordering between two MonoBehaviours'
+            // OnEnable is undefined, so the initial label refresh happens in Start.
+            TrySubscribe();
+            RefreshLabelFromModel();
             RefreshInteractable();
         }
 
         private void OnDisable()
         {
-            if (gridView != null) gridView.GenerationChanged -= HandleGenerationChanged;
+            if (_subscribed && gridView != null)
+            {
+                gridView.GenerationChanged -= HandleGenerationChanged;
+                _subscribed = false;
+            }
         }
 
         public void OnPlayClicked()
@@ -55,8 +67,21 @@ namespace UI
         {
             if (gridView == null) return;
             gridView.ResetGrid();
-            if (gridView.Model != null) HandleGenerationChanged(gridView.Model.Generation);
+            RefreshLabelFromModel();
             RefreshInteractable();
+        }
+
+        private void TrySubscribe()
+        {
+            if (_subscribed || gridView == null) return;
+            gridView.GenerationChanged += HandleGenerationChanged;
+            _subscribed = true;
+        }
+
+        private void RefreshLabelFromModel()
+        {
+            int gen = (gridView != null && gridView.Model != null) ? gridView.Model.Generation : 0;
+            HandleGenerationChanged(gen);
         }
 
         private void HandleGenerationChanged(int generation)
