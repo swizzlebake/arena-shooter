@@ -15,6 +15,7 @@ namespace View.Tests
         private const string CellPrefabPath = "Assets/Prefabs/Cell.prefab";
         private const int TestWidth = 10;
         private const int TestHeight = 10;
+        private const float DeathAnimationSettleSeconds = 0.2f;
 
         [UnityTest]
         public IEnumerator Cell_AtFiveFive_DiesAndRendersHidden_AfterOneStep()
@@ -42,6 +43,8 @@ namespace View.Tests
             var aliveView = gridView.GetCellView(5, 5);
             Assert.IsNotNull(aliveView);
             Assert.IsTrue(aliveView.IsAlive, "CellView at (5,5) should be alive after Set");
+
+            yield return new WaitForSeconds(DeathAnimationSettleSeconds);
             Assert.AreEqual(1f, aliveView.CurrentAlpha, 0.001f);
 
             gridView.StepOnce();
@@ -51,6 +54,8 @@ namespace View.Tests
             var deadView = gridView.GetCellView(5, 5);
             Assert.IsNotNull(deadView);
             Assert.IsFalse(deadView.IsAlive);
+
+            yield return new WaitForSeconds(DeathAnimationSettleSeconds);
             Assert.AreEqual(0f, deadView.CurrentAlpha, 0.001f);
 
             Object.Destroy(go);
