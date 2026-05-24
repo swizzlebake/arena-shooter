@@ -58,8 +58,10 @@ namespace UI
         public void OnStepClicked()
         {
             if (gridView == null) return;
-            if (gridView.IsPlaying) return;
-            gridView.StepOnce();
+            if (!gridView.IsPlaying)
+            {
+                gridView.StepOnce();
+            }
             RefreshInteractable();
         }
 
