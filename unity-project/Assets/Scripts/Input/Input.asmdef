@@ -1,0 +1,19 @@
+{
+    "name": "Input",
+    "rootNamespace": "InputLayer",
+    "references": [
+        "GUID:0000000000000000e000000000000000",
+        "Game",
+        "View",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
