@@ -12,9 +12,45 @@ description = "swizz-unity project-local Unity profile (binary path override)."
 version = "0.1.0"
 extends = "unity"
 
+# Override every per-agent model from the embedded unity profile so
+# the whole pipeline runs on qwen3.6:27B (already pulled locally).
+# gpu_split=0.45 matches the dense-model tuning used in swizztest.
+[agents.architect]
+plugin = "game-architect"
+model = "qwen3.6:27B"
+gpu_split = 0.45
+
+[agents.engineer]
+model = "qwen3.6:27B"
+gpu_split = 0.45
+
+[agents.qa]
+model = "qwen3.6:27B"
+gpu_split = 0.45
+
+[agents.unity-engineer]
+plugin = "unity-engineer"
+model = "qwen3.6:27B"
+gpu_split = 0.45
+
+[agents.shader-engineer]
+plugin = "shader-engineer"
+model = "qwen3.6:27B"
+gpu_split = 0.45
+
+[agents.unity-qa]
+plugin = "unity-qa"
+model = "qwen3.6:27B"
+gpu_split = 0.45
+
 [mcp.unity-editor]
 server = "/home/ems/RiderProjects/swizz-unity/unity-project/Library/mcp-server/linux-x64/unity-mcp-server"
-args = ["--port=8080", "--client-transport=stdio"]
+# --port is the SignalR hub port the Editor's in-package client
+# connects to (Unity logs "endpoint: /hub/mcp-server" pointing at
+# this port). --client-transport=stdio means the server speaks MCP
+# over stdio to swizz (the other half of its job). Both ends must
+# agree on the port; 23118 is IvanMurzak's default.
+args = ["--port=23118", "--client-transport=stdio"]
 auto_start = true
 capabilities = [
   "scene.read", "scene.write",
