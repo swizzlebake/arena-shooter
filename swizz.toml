@@ -24,25 +24,19 @@ test_command = ""
 [model]
 # Switched off Ollama because CUDA 13.2 (host driver) produces
 # gibberish output with qwen3.6 GGUFs under Ollama's bundled CUDA
-# runtime. Now using llama-server directly. Start it yourself
-# before `swizz run`:
+# runtime. Now using llama-server directly. Swizz spawns and reaps
+# the server itself via [model.launch] below — DO NOT pre-start
+# ~/start-llama-server.sh manually. If you do, swizz can't stop the
+# server it didn't spawn, so the artist phase (ComfyUI) will OOM on
+# the 12 GB GPU when both want VRAM. `swizz doctor` warns if it
+# detects a pre-started server.
 #
-#   ~/start-llama-server.sh
-#
-# That script (tracked in the swizz repo at scripts/start-llama-server.sh,
-# symlinked from ~/) launches the upstream prebuilt Linux Vulkan
-# llama-server on 127.0.0.1:11435 with the qwen3.6-27b-q3_K_M GGUF,
-# gpu_layers / ctx / cache-type tuned for 12 GB VRAM. Edit the
-# variables at the top of the script to tune.
-#
-# Vulkan instead of CUDA because llama.cpp doesn't ship Linux+CUDA
-# prebuilts (Windows only), and a nix-built CUDA binary would need
-# nixGL to bridge nix's glibc against the host's libcuda — nixGL's
-# auto-detect regex doesn't match the NVIDIA Open Kernel Module
-# banner this host runs, so the wrapper fails to evaluate. The
-# Vulkan binary links against host glibc throughout and talks to
-# NVIDIA's Vulkan ICD directly, so there's no glibc collision and
-# no toolchain install required.
+# scripts/start-llama-server.sh launches the upstream prebuilt Linux
+# Vulkan llama-server on 127.0.0.1:11435 with the qwen3.6-27b-q3_K_M
+# GGUF, gpu_layers / ctx / cache-type tuned for 12 GB VRAM. Vulkan
+# instead of CUDA because llama.cpp doesn't ship Linux+CUDA prebuilts
+# and the nix-built CUDA binary needed nixGL, which doesn't recognise
+# the NVIDIA Open Kernel Module banner this host runs.
 #
 # Per-agent gpu_split / num_ctx in unity-local.toml are ADVISORY
 # under llamacpp — llama-server reads those from the CLI flags above
@@ -60,6 +54,14 @@ stream = true
 stream_mode = "summary"
 keep_alive = "30m"
 think = false
+
+[model.launch]
+# Swizz spawns llama-server itself so it can stop+restart it around
+# the artist phase (ComfyUI). Without this swap, llama-server (~10 GB
+# VRAM) + Stable Diffusion (~4-6 GB) overflows the 12 GB GPU.
+# Command is the launcher script tracked in the swizz repo.
+command         = "/home/ems/start-llama-server.sh"
+timeout_seconds = 90  # cold model load on a 27B Q3_K_M GGUF can take ~30-60s
 
 [git]
 enabled = true
