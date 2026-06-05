@@ -97,16 +97,35 @@ launch_dir             = "/home/ems/ComfyUI"
 launch_timeout_seconds = 60
 
 [cloud]
-# Local-first with cloud as fallback. Swizz uses the local Qwen
-# model for every agent call; only escalates to Claude on context
-# overflow or when an agent self-reports {status: "escalate"}.
-# Flip `always = true` if you want every call routed via the cloud
-# provider regardless.
+# Force EVERY agent call through OpenAI Codex (codex-cli), billing the
+# ChatGPT subscription rather than an API key. always=true routes all
+# steps to codex — including the Artist's Phase-1 prompt generation;
+# only the Phase-2 image render (ComfyUI, see [agents.artist]) stays
+# local, since image generation never goes to the text provider.
+# require_approval=false so the run is unattended end-to-end.
+#   `codex login` must be done once (uses ~/.codex/auth.json); swizz
+#   strips OPENAI_API_KEY from the codex subprocess so it uses that
+#   subscription auth.
 enabled          = true
-always           = false
-provider         = "anthropic"
+always           = true
+provider         = "codex-cli"
 require_approval = false
 
+[cloud.codex_cli]
+path = "codex"
+# model: LEFT UNSET on purpose. `gpt-5-codex` is rejected on a ChatGPT
+# account ("not supported when using Codex with a ChatGPT account");
+# omitting it inherits codex's configured default (gpt-5.5 here), which
+# is confirmed working with the subscription. Set a value only if you
+# know it's allowed for ChatGPT-account auth.
+# model = "gpt-5.5"
+sandbox         = "read-only"   # a completion call never edits the tree
+max_tokens      = 32768         # informational; caps the pre-call estimate only
+timeout_seconds = 600
+# extra_args = ["-c", "model_reasoning_effort=high"]  # appended to `codex exec`
+
+# Retained for an easy switch-back (set provider = "anthropic"); unused
+# while provider = "codex-cli".
 [cloud.anthropic]
 api_key_env     = "ANTHROPIC_API_KEY"
 model           = "claude-opus-4-7"
