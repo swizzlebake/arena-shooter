@@ -28,8 +28,8 @@ gpu_split = 0.45
 model = "qwen3.6:27B"
 gpu_split = 0.45
 
-[agents.unity-engineer]
-plugin = "unity-engineer"
+[agents.unity-editor-engineer]
+plugin = "unity-editor-engineer"
 model = "qwen3.6:27B"
 gpu_split = 0.45
 
