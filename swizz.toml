@@ -102,20 +102,36 @@ launch_dir             = "/home/ems/ComfyUI"
 launch_timeout_seconds = 60
 
 [cloud]
-# Force EVERY agent call through OpenAI Codex (codex-cli), billing the
-# ChatGPT subscription rather than an API key. always=true routes all
-# steps to codex — including the Artist's Phase-1 prompt generation;
-# only the Phase-2 image render (ComfyUI, see [agents.artist]) stays
-# local, since image generation never goes to the text provider.
-# require_approval=false so the run is unattended end-to-end.
-#   `codex login` must be done once (uses ~/.codex/auth.json); swizz
-#   strips OPENAI_API_KEY from the codex subprocess so it uses that
-#   subscription auth.
+# Force EVERY agent call through DeepSeek's OpenAI-compatible API
+# (provider="deepseek", direct per-token billing on an API key).
+# always=true routes all steps to DeepSeek — including the Artist's
+# Phase-1 prompt generation; only the Phase-2 image render (ComfyUI, see
+# [agents.artist]) stays local, since image generation never goes to the
+# text provider. require_approval=false so the run is unattended
+# end-to-end (otherwise every single call would prompt).
+#   Export DEEPSEEK_API_KEY in the environment of the swizz-node that
+#   runs this workspace (the node launches swizz as a subprocess that
+#   inherits it); an empty key is a hard error at run start.
 enabled          = true
 always           = true
-provider         = "codex-cli"
+provider         = "deepseek"
 require_approval = false
 
+[cloud.deepseek]
+# DeepSeek's OpenAI-compatible API (direct, per-token). Key read from
+# this env var at runtime. deepseek-v4-pro is the larger V4 model (1M
+# context, 384K max output, thinking on by default; supports JSON mode
+# for structured agent output). max_tokens (32768) is well under the
+# 384K ceiling — raise it if large architect/engineer outputs truncate.
+# Cheaper alternative: deepseek-v4-flash (~3x lower output cost).
+api_key_env     = "DEEPSEEK_API_KEY"
+model           = "deepseek-v4-pro"
+base_url        = ""
+max_tokens      = 32768
+timeout_seconds = 600
+
+# Retained for an easy switch-back (set provider = "codex-cli"); unused
+# while provider = "deepseek".
 [cloud.codex_cli]
 path = "codex"
 # model: LEFT UNSET on purpose. `gpt-5-codex` is rejected on a ChatGPT
