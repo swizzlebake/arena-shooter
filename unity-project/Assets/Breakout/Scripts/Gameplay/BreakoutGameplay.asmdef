@@ -1,0 +1,9 @@
+{
+    "name": "BreakoutGameplay",
+    "references": [
+        "BreakoutGame",
+        "Unity.InputSystem"
+    ],
+    "autoReferenced": false,
+    "rootNamespace": "BreakoutGameplay"
+}
