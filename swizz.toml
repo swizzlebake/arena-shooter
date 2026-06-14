@@ -97,16 +97,29 @@ launch_dir             = "/home/ems/ComfyUI"
 launch_timeout_seconds = 60
 
 [cloud]
-# Local-first with cloud as fallback. Swizz uses the local Qwen
-# model for every agent call; only escalates to Claude on context
-# overflow or when an agent self-reports {status: "escalate"}.
-# Flip `always = true` if you want every call routed via the cloud
-# provider regardless.
+# Local-first with cloud as fallback. Swizz uses the local Qwen model
+# (llama-server, see [model]) for every agent call; only escalates to
+# DeepSeek on context overflow or when an agent self-reports
+# {status: "escalate"}. Flip `always = true` to route every call
+# through DeepSeek regardless (as develop does).
 enabled          = true
 always           = false
-provider         = "anthropic"
+provider         = "deepseek"
 require_approval = false
 
+[cloud.deepseek]
+# DeepSeek's OpenAI-compatible API (direct, per-token). Key read from
+# DEEPSEEK_API_KEY at runtime. deepseek-v4-pro is the larger V4 model
+# (1M context, 384K max output). Only hit on escalation while
+# always=false. Cheaper alternative: deepseek-v4-flash.
+api_key_env     = "DEEPSEEK_API_KEY"
+model           = "deepseek-v4-pro"
+base_url        = ""
+max_tokens      = 32768
+timeout_seconds = 600
+
+# Retained for an easy switch-back (set provider = "anthropic"); unused
+# while provider = "deepseek".
 [cloud.anthropic]
 api_key_env     = "ANTHROPIC_API_KEY"
 model           = "claude-opus-4-7"
