@@ -1,0 +1,11 @@
+{
+    "name": "BreakoutPlayModeTests",
+    "references": [
+        "BreakoutGame",
+        "BreakoutGameplay"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "autoReferenced": false
+}
