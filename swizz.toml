@@ -129,26 +129,3 @@ model           = "deepseek-v4-pro"
 base_url        = ""
 max_tokens      = 32768
 timeout_seconds = 600
-
-# Retained for an easy switch-back (set provider = "codex-cli"); unused
-# while provider = "deepseek".
-[cloud.codex_cli]
-path = "codex"
-# model: LEFT UNSET on purpose. `gpt-5-codex` is rejected on a ChatGPT
-# account ("not supported when using Codex with a ChatGPT account");
-# omitting it inherits codex's configured default (gpt-5.5 here), which
-# is confirmed working with the subscription. Set a value only if you
-# know it's allowed for ChatGPT-account auth.
-# model = "gpt-5.5"
-sandbox         = "read-only"   # a completion call never edits the tree
-max_tokens      = 32768         # informational; caps the pre-call estimate only
-timeout_seconds = 600
-# extra_args = ["-c", "model_reasoning_effort=high"]  # appended to `codex exec`
-
-# Retained for an easy switch-back (set provider = "anthropic"); unused
-# while provider = "codex-cli".
-[cloud.anthropic]
-api_key_env     = "ANTHROPIC_API_KEY"
-model           = "claude-opus-4-7"
-max_tokens      = 32768
-timeout_seconds = 120
