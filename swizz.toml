@@ -56,12 +56,17 @@ keep_alive = "30m"
 think = false
 
 [model.launch]
-# Swizz spawns llama-server itself so it can stop+restart it around
-# the artist phase (ComfyUI). Without this swap, llama-server (~10 GB
-# VRAM) + Stable Diffusion (~4-6 GB) overflows the 12 GB GPU.
-# Command is the launcher script tracked in the swizz repo.
-command         = "/home/ems/start-llama-server.sh"
-timeout_seconds = 90  # cold model load on a 27B Q3_K_M GGUF can take ~30-60s
+# DISABLED under [cloud].always = true: every agent call goes to
+# DeepSeek, so the local llama-server is never used for inference.
+# Spawning it would just hold ~10 GB of VRAM and force a pointless
+# evict/restart GPU-swap around the ComfyUI artist phase. With this
+# commented out swizz never starts llama-server and ComfyUI gets the
+# full 12 GB GPU. `swizz doctor` will show `✗ llamacpp unreachable` —
+# harmless under always-cloud (the endpoint is never called).
+# Re-enable both lines (and set always = false) for local-model runs.
+#
+# command         = "/home/ems/start-llama-server.sh"
+# timeout_seconds = 90  # cold model load on a 27B Q3_K_M GGUF can take ~30-60s
 
 [git]
 enabled = true
@@ -97,13 +102,15 @@ launch_dir             = "/home/ems/ComfyUI"
 launch_timeout_seconds = 60
 
 [cloud]
-# Local-first with cloud as fallback. Swizz uses the local Qwen model
-# (llama-server, see [model]) for every agent call; only escalates to
-# DeepSeek on context overflow or when an agent self-reports
-# {status: "escalate"}. Flip `always = true` to route every call
-# through DeepSeek regardless (as develop does).
+# Always-cloud: every agent call is routed through DeepSeek's
+# OpenAI-compatible API (the local llama-server is bypassed entirely —
+# no budget check, no Generate call; [model.launch] is disabled above
+# so it isn't even spawned). require_approval=false so runs are
+# unattended; export DEEPSEEK_API_KEY in the runner's environment.
+# Set always = false to go back to local-first with DeepSeek as the
+# escalation fallback (and re-enable [model.launch]).
 enabled          = true
-always           = false
+always           = true
 provider         = "deepseek"
 require_approval = false
 
