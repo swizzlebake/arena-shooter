@@ -44,7 +44,11 @@ model = "qwen3.6:27B"
 gpu_split = 0.45
 
 [mcp.unity-editor]
-server = "/home/ems/RiderProjects/swizz-unity/unity-project/Library/mcp-server/linux-x64/unity-mcp-server"
+# com.ivanmurzak.unity.mcp 0.81.0 rebranded the project to the
+# engine-agnostic "GameDev-MCP-Server" and renamed the extracted binary
+# unity-mcp-server -> gamedev-mcp-server (server internals now 8.0.0).
+# Same CLI surface: --port / --client-transport still work.
+server = "/home/ems/RiderProjects/swizz-unity/unity-project/Library/mcp-server/linux-x64/gamedev-mcp-server"
 # --port is the SignalR hub port the Editor's in-package client
 # connects to (Unity logs "endpoint: /hub/mcp-server" pointing at
 # this port). --client-transport=stdio means the server speaks MCP
