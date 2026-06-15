@@ -1,6 +1,8 @@
 {
     "name": "BreakoutGame",
-    "references": [],
+    "references": [
+        "UnityEngine"
+    ],
     "autoReferenced": false,
     "rootNamespace": "BreakoutGame"
 }
