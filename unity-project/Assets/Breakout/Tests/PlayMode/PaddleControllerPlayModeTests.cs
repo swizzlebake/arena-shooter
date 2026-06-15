@@ -157,7 +157,11 @@ public class PaddleControllerPlayModeTests : InputTestFixture
     {
         if (controller != null) Object.DestroyImmediate(controller.gameObject);
         if (mainCamera != null) Object.DestroyImmediate(mainCamera.gameObject);
-        actionsAsset?.Dispose();
+        if (actionsAsset != null)
+        {
+            actionsAsset.Disable();
+            Object.DestroyImmediate(actionsAsset);
+        }
     }
 
     private InputActionReference CreateReference(InputAction action)
