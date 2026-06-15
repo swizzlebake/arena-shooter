@@ -2,7 +2,9 @@
     "name": "BreakoutPlayModeTests",
     "references": [
         "BreakoutGame",
-        "BreakoutGameplay"
+        "BreakoutGameplay",
+        "Unity.InputSystem",
+        "Unity.InputSystem.TestFramework"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
