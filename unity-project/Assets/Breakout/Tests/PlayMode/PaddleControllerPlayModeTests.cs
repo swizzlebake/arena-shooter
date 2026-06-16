@@ -166,9 +166,10 @@ public class PaddleControllerPlayModeTests : InputTestFixture
 
     private InputActionReference CreateReference(InputAction action)
     {
-        var reference = ScriptableObject.CreateInstance<InputActionReference>();
-        reference.GetType().GetProperty("action").SetValue(reference, action);
-        return reference;
+        // InputActionReference.action is read-only — reflecting a setter onto it
+        // throws "Set Method not found for 'action'". Create() is the supported
+        // factory that wires the reference to the action's asset + id.
+        return InputActionReference.Create(action);
     }
 
     [UnityTest]
