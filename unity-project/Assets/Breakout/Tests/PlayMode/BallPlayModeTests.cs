@@ -37,8 +37,8 @@ public class BallPlayModeTests
         ballGO.AddComponent<CircleCollider2D>();
         ballRb = ballGO.AddComponent<Rigidbody2D>();
         ballRb.gravityScale = 0f;
-        ballRb.drag = 0f;
-        ballRb.angularDrag = 0f;
+        ballRb.linearDamping = 0f;
+        ballRb.angularDamping = 0f;
         ball = ballGO.AddComponent<Ball>();
 
         ball.Configure(3f);
