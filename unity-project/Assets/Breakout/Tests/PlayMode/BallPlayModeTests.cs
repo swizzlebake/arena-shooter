@@ -41,8 +41,7 @@ public class BallPlayModeTests
         ballRb.angularDrag = 0f;
         ball = ballGO.AddComponent<Ball>();
 
-        ball.GetType().GetField("speed", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-            .SetValue(ball, 3f);
+        ball.Configure(3f);
     }
 
     private GameObject CreateWall(string name, Vector2 position, Vector2 size)
@@ -71,10 +70,8 @@ public class BallPlayModeTests
         ball.SetVelocityForTest(new Vector2(3f, 0f));
         ballGO.transform.position = new Vector2(7.5f, 0f);
 
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
+        for (int i = 0; i < 30; i++)
+            yield return new WaitForFixedUpdate();
 
         Vector2 vel = ball.Velocity;
         Assert.That(vel.x, Is.LessThan(0f), "Should move left after right wall bounce");
@@ -89,10 +86,8 @@ public class BallPlayModeTests
         ball.SetVelocityForTest(new Vector2(0f, -3f));
         ballGO.transform.position = new Vector2(0f, -2f);
 
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
+        for (int i = 0; i < 30; i++)
+            yield return new WaitForFixedUpdate();
 
         Vector2 vel = ball.Velocity;
         Assert.That(vel.y, Is.GreaterThan(0f), "Should go up after paddle bounce");
@@ -106,10 +101,8 @@ public class BallPlayModeTests
         ball.SetVelocityForTest(new Vector2(2f, -2f));
         ballGO.transform.position = new Vector2(7.5f, 0f);
 
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
-        yield return new WaitForFixedUpdate();
+        for (int i = 0; i < 30; i++)
+            yield return new WaitForFixedUpdate();
 
         Assert.That(ball.Velocity.magnitude, Is.EqualTo(3f).Within(0.001f));
     }

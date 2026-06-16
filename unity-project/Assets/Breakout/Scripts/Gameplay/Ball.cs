@@ -35,6 +35,11 @@ namespace BreakoutGameplay
             rb.velocity = direction.normalized * speed;
         }
 
+        public void Configure(float speed)
+        {
+            this.speed = speed;
+        }
+
         public void SetVelocityForTest(Vector2 velocity)
         {
             rb.velocity = velocity;
