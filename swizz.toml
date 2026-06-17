@@ -76,18 +76,31 @@ feature_prefix = "feature"
 safety_test_before_main = false  # no dotnet test runner wired in MVP
 
 [unity]
-# Editor is user-managed (you open Unity yourself before swizz run
-# and keep it open across runs — matches normal Unity dev workflow).
-# editor_command is left empty so swizz's launcher is a no-op.
+# Auto-launch mode (editor_ready_probe = "lockfile"): swizz launches the
+# Editor at run start if it isn't already open, and reuses a warm one
+# otherwise — "already open" is detected via unity-project/Temp/UnityLockfile,
+# since the IvanMurzak package dials OUT to swizz's MCP server (nothing
+# listens on readiness_port to probe). -accept-apiupdate pre-empts the
+# API-updater "upgrade scripts?" modal, which otherwise blocks the Editor
+# main thread and null-responds every MCP tool call. close_editor_after_run
+# defaults false -> the Editor stays warm between runs. Blank editor_command
+# to go back to manual-Editor mode.
 #
-# IMPORTANT one-time setup inside Unity:
+# IMPORTANT one-time setup inside Unity (still required under auto-launch):
 #   Window → AI Game Developer → click "Stop" on the MCP server.
-# That sets KeepServerRunning=false in the package config, so Unity
-# stops auto-spawning its own MCP server on port 23118 every time
-# the Editor opens — otherwise it competes with the binary swizz
-# spawns via [mcp.unity-editor] in .swizz/profiles/unity-local.toml.
-editor_command = ""
-project_path   = "/home/ems/RiderProjects/swizz-unity/unity-project"
+# That sets KeepServerRunning=false in the package config, so Unity stops
+# auto-spawning its own MCP server on port 23118 every time the Editor opens
+# — otherwise it competes with the binary swizz spawns via [mcp.unity-editor]
+# in .swizz/profiles/unity-local.toml, and the Editor plugin may attach to
+# Unity's server instead of swizz's (every swizz tool call then returns
+# "Response data is null").
+editor_command         = "/home/ems/Unity/Hub/Editor/6000.3.10f1/Editor/Unity"
+editor_args            = ["-accept-apiupdate"]  # -projectPath is auto-added
+project_path           = "/home/ems/RiderProjects/swizz-unity/unity-project"
+launch_timeout_seconds = 240                    # cold boot + first import headroom
+readiness_port         = 23118                  # ignored in lockfile mode
+editor_ready_probe     = "lockfile"
+# close_editor_after_run defaults false -> Editor stays warm between runs
 
 [agents.artist]
 # 2D sprite art via ComfyUI. Lazily spawned when an artist task fires;
