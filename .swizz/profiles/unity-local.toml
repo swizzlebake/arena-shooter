@@ -12,36 +12,46 @@ description = "swizz-unity project-local Unity profile (binary path override)."
 version = "0.1.0"
 extends = "unity"
 
-# Override every per-agent model from the embedded unity profile so
-# the whole pipeline runs on qwen3.6:27B (already pulled locally).
-# gpu_split=0.45 matches the dense-model tuning used in swizztest.
+# Override every per-agent model from the embedded unity profile (which
+# pins qwen2.5-coder:14b/7b) so the whole pipeline runs on the Mac's
+# qwen3.6-35b-a3b-8bit MLX build — matching [model].default_model and
+# swizz-unity-2. num_ctx=65536 is kept in lockstep with [model].num_ctx (it
+# drives the per-agent cloud-escalation threshold); gpu_split=1.0 is advisory
+# under the openai/LM Studio backend. pm/uiux/artist aren't listed — they
+# inherit [model].default_model, which is already the Mac model.
 [agents.architect]
 plugin = "game-architect"
-model = "qwen3.6:27B"
-gpu_split = 0.45
+model = "qwen3.6-35b-a3b-8bit-mlx"
+num_ctx = 65536
+gpu_split = 1.0
 
 [agents.engineer]
-model = "qwen3.6:27B"
-gpu_split = 0.45
+model = "qwen3.6-35b-a3b-8bit-mlx"
+num_ctx = 65536
+gpu_split = 1.0
 
 [agents.qa]
-model = "qwen3.6:27B"
-gpu_split = 0.45
+model = "qwen3.6-35b-a3b-8bit-mlx"
+num_ctx = 65536
+gpu_split = 1.0
 
 [agents.unity-editor-engineer]
 plugin = "unity-editor-engineer"
-model = "qwen3.6:27B"
-gpu_split = 0.45
+model = "qwen3.6-35b-a3b-8bit-mlx"
+num_ctx = 65536
+gpu_split = 1.0
 
 [agents.shader-engineer]
 plugin = "shader-engineer"
-model = "qwen3.6:27B"
-gpu_split = 0.45
+model = "qwen3.6-35b-a3b-8bit-mlx"
+num_ctx = 65536
+gpu_split = 1.0
 
 [agents.unity-qa]
 plugin = "unity-qa"
-model = "qwen3.6:27B"
-gpu_split = 0.45
+model = "qwen3.6-35b-a3b-8bit-mlx"
+num_ctx = 65536
+gpu_split = 1.0
 
 [mcp.unity-editor]
 # com.ivanmurzak.unity.mcp 0.81.0 rebranded the project to the
