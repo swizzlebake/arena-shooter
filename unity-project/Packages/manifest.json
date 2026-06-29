@@ -10,7 +10,7 @@
     }
   ],
   "dependencies": {
-    "com.ivanmurzak.unity.mcp": "0.81.0",
+    "com.ivanmurzak.unity.mcp": "0.82.1",
     "com.unity.feature.2d": "2.0.2",
     "com.unity.inputsystem": "1.11.2",
     "com.unity.multiplayer.center": "1.0.1",
