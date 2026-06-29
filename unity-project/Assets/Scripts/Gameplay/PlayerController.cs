@@ -15,6 +15,12 @@ namespace Gameplay
 
         private Rigidbody2D rb;
 
+        public void Configure(InputActionReference move, InputActionReference aim)
+        {
+            moveAction = move;
+            aimAction = aim;
+        }
+
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
@@ -22,19 +28,25 @@ namespace Gameplay
 
         private void Update()
         {
-            Vector2 moveInput = moveAction.action.ReadValue<Vector2>();
-            if (moveInput.sqrMagnitude > MovementThreshold)
+            if (moveAction?.action != null)
             {
-                Vector2 targetPos = rb.position + moveInput * moveSpeed * Time.deltaTime;
-                rb.MovePosition(Game.ArenaBounds.Default.Clamp(targetPos));
+                Vector2 moveInput = moveAction.action.ReadValue<Vector2>();
+                if (moveInput.sqrMagnitude > MovementThreshold)
+                {
+                    Vector2 targetPos = rb.position + moveInput * moveSpeed * Time.deltaTime;
+                    rb.MovePosition(Game.ArenaBounds.Default.Clamp(targetPos));
+                }
             }
 
-            Vector2 aimInput = aimAction.action.ReadValue<Vector2>();
-            if (aimInput.sqrMagnitude > MovementThreshold)
+            if (aimAction?.action != null)
             {
-                AimDirection = aimInput.normalized;
-                float angle = Mathf.Atan2(AimDirection.y, AimDirection.x) * Mathf.Rad2Deg;
-                transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                Vector2 aimInput = aimAction.action.ReadValue<Vector2>();
+                if (aimInput.sqrMagnitude > MovementThreshold)
+                {
+                    AimDirection = aimInput.normalized;
+                    float angle = Mathf.Atan2(AimDirection.y, AimDirection.x) * Mathf.Rad2Deg;
+                    transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                }
             }
         }
     }
