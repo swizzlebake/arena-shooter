@@ -1,0 +1,19 @@
+{
+    "name": "Controls",
+    "maps": [{
+        "name": "Player",
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "actions": [
+            {"name": "Move", "type": "Value", "id": "b1c2d3e4-f5a6-7890-bcde-f12345678901", "expectedControlType": "Vector2", "processors": "", "interactions": "", "initialStateCheck": false},
+            {"name": "Aim", "type": "Value", "id": "c2d3e4f5-a6b7-8901-cdef-123456789012", "expectedControlType": "Vector2", "processors": "", "interactions": "", "initialStateCheck": true}
+        ],
+        "bindings": [
+            {"name": "", "id": "d3e4f5a6-b7c8-9012-defa-234567890123", "path": "<Keyboard>/w", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": false},
+            {"name": "", "id": "e4f5a6b7-c8d9-0123-efab-345678901234", "path": "<Keyboard>/s", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": false},
+            {"name": "", "id": "f5a6b7c8-d9e0-1234-fabc-456789012345", "path": "<Keyboard>/a", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": false},
+            {"name": "", "id": "a6b7c8d9-e0f1-2345-abcd-567890123456", "path": "<Keyboard>/d", "interactions": "", "processors": "", "groups": "", "action": "Move", "isComposite": false, "isPartOfComposite": false},
+            {"name": "", "id": "b7c8d9e0-f1a2-3456-bcde-678901234567", "path": "<Mouse>/position", "interactions": "", "processors": "", "groups": "", "action": "Aim", "isComposite": false, "isPartOfComposite": false}
+        ]
+    }],
+    "controlSchemes": []
+}
