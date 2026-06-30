@@ -17,6 +17,8 @@ namespace Gameplay
             rb.linearVelocity = direction * (speed > 0f ? speed : bulletSpeed);
         }
 
+        public void SetDamage(float amount) => damage = amount;
+
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();

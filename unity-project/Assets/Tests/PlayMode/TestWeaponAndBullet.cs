@@ -41,7 +41,7 @@ namespace Gameplay.Tests
         {
             var aimDir = new Vector2(1f, 0f);
             var rot = weapon.GetBulletRotation(aimDir);
-            Assert.AreEqual(Vector3.forward, rot * Vector3.right);
+            Assert.AreEqual(Vector3.right, rot * Vector3.right);
 
             aimDir = new Vector2(0f, 1f);
             rot = weapon.GetBulletRotation(aimDir);
@@ -67,6 +67,7 @@ namespace Gameplay.Tests
             var bulletGO = new GameObject("Bullet");
             var bulletScript = bulletGO.AddComponent<Bullet>();
 
+            bulletScript.SetDamage(1f);
             bulletScript.SimulateTriggerEnter(col);
 
             Assert.Greater(targetComp.DamageTaken, 0f);
