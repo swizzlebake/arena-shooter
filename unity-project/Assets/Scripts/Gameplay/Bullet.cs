@@ -9,9 +9,11 @@ namespace Gameplay
 
         private Rigidbody2D rb;
         private float timer;
+        private float damage;
 
-        public void Initialize(Vector2 direction, float speed)
+        public void Initialize(Vector2 direction, float speed, float bulletDamage)
         {
+            damage = bulletDamage;
             rb.linearVelocity = direction * (speed > 0f ? speed : bulletSpeed);
         }
 
@@ -34,9 +36,11 @@ namespace Gameplay
             var damageable = other.GetComponent<IDamageable>();
             if (damageable != null)
             {
-                damageable.TakeDamage(1f);
+                damageable.TakeDamage(damage);
                 Destroy(gameObject);
             }
         }
+
+        public void SimulateTriggerEnter(Collider2D other) => OnTriggerEnter2D(other);
     }
 }
