@@ -1,7 +1,7 @@
 {
     "name": "Test.PlayMode",
     "rootNamespace": "",
-    "references": ["Game", "Gameplay", "Unity.InputSystem"],
+    "references": ["Game", "Gameplay", "UI", "Unity.InputSystem"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

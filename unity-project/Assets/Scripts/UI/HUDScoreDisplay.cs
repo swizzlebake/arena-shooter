@@ -8,6 +8,8 @@ namespace UI
         [SerializeField] private TextMeshProUGUI scoreText;
         [SerializeField] private GameManager gameManager;
 
+        public void Configure(GameManager manager) => gameManager = manager;
+
         private void Update()
         {
             if (gameManager != null && scoreText != null)

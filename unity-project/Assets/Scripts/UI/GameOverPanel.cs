@@ -7,6 +7,8 @@ namespace UI
     {
         [SerializeField] private GameObject panel;
 
+        public void Configure(GameObject p) => panel = p;
+
         public void Show() => panel.SetActive(true);
         public void Hide() => panel.SetActive(false);
 
