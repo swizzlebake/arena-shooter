@@ -37,7 +37,13 @@ gpu_split = 1.0
 
 [agents.unity-editor-engineer]
 plugin = "unity-editor-engineer"
-model = "qwen3.6-35b-a3b-8bit-mlx"
+# Trying the 27b (Unsloth Dynamic quant) for scene wiring — the 35b-a3b
+# kept hand-writing script-execute with hallucinated APIs instead of
+# emitting the declarative wiring_plan. NOTE: the Mac serves ONE model at
+# a time, so this forces an LM Studio JIT swap to/from the 35b around the
+# editor-engineer step; load qwen3.6-27b-ud-mlx with context >= num_ctx
+# below or big prompts 400.
+model = "qwen3.6-27b-ud-mlx"
 num_ctx = 65536
 gpu_split = 1.0
 
