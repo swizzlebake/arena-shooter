@@ -25,9 +25,14 @@ test_command = ""
 # Inference runs on the Mac Studio (emsmac.local, 64 GB) via LM Studio's
 # OpenAI-compatible server (MLX runtime) — the SAME backend as swizz-unity-2.
 # This workspace was moved off its local 12 GB llama-server (qwen3.6-27b Q3)
-# onto the Mac to run the same qwen3.6-35b-a3b-8bit MLX build. Load that model
-# in LM Studio's Developer / Local Server tab, "Serve on Local Network", Start
-# Server; confirm the id with: curl http://emsmac.local:1234/v1/models
+# onto the Mac. The WHOLE pipeline now runs one model — qwen3.6-27b-ud-mlx — so
+# there is NO per-agent model swap: the prior split (35b-a3b for most agents,
+# 27b only for the editor-engineer) forced an LM Studio JIT model reload around
+# the wiring step, and that single-model-at-a-time swap returned an HTTP 500
+# mid-run and aborted the task. One model everywhere = no swap, no swap-500.
+# Load qwen3.6-27b-ud-mlx in LM Studio's Developer / Local Server tab at the
+# 65536 context below, "Serve on Local Network", Start Server; confirm the id
+# with: curl http://emsmac.local:1234/v1/models
 #
 # IMPORTANT: the Mac serves ONE model at a time — do NOT run swizz-unity and
 # swizz-unity-2 against it concurrently; a second run contends for the single
@@ -40,7 +45,7 @@ test_command = ""
 # [model.launch] below.
 provider = "openai"
 endpoint = "http://emsmac.local:1234"
-default_model = "qwen3.6-35b-a3b-8bit-mlx"
+default_model = "qwen3.6-27b-ud-mlx"
 gpu_split = 1.0
 # num_ctx=65536 / num_predict=32768 matched to swizz-unity-2: the overflow guard
 # thresholds the prompt against (num_ctx - num_predict), so num_ctx must stay

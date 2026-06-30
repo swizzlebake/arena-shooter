@@ -13,35 +13,40 @@ version = "0.1.0"
 extends = "unity"
 
 # Override every per-agent model from the embedded unity profile (which
-# pins qwen2.5-coder:14b/7b) so the whole pipeline runs on the Mac's
-# qwen3.6-35b-a3b-8bit MLX build — matching [model].default_model and
-# swizz-unity-2. num_ctx=65536 is kept in lockstep with [model].num_ctx (it
-# drives the per-agent cloud-escalation threshold); gpu_split=1.0 is advisory
-# under the openai/LM Studio backend. pm/uiux/artist aren't listed — they
-# inherit [model].default_model, which is already the Mac model.
+# pins qwen2.5-coder:14b/7b) so the whole pipeline runs on ONE Mac model —
+# qwen3.6-27b-ud-mlx, matching [model].default_model. Every agent is on the
+# SAME model on purpose: the Mac serves one model at a time, so any per-agent
+# model that differs from [model].default_model forces an LM Studio JIT reload
+# mid-run — that swap returned an HTTP 500 around the wiring step and aborted
+# the task (m7). Keep all these in lockstep with [model].default_model; if you
+# change the global model, change these too (or delete them to inherit).
+# num_ctx=65536 is kept in lockstep with [model].num_ctx (it drives the
+# per-agent cloud-escalation threshold); gpu_split=1.0 is advisory under the
+# openai/LM Studio backend. pm/uiux/artist aren't listed — they inherit
+# [model].default_model, which is already the 27b.
 [agents.architect]
 plugin = "game-architect"
-model = "qwen3.6-35b-a3b-8bit-mlx"
+model = "qwen3.6-27b-ud-mlx"
 num_ctx = 65536
 gpu_split = 1.0
 
 [agents.engineer]
-model = "qwen3.6-35b-a3b-8bit-mlx"
+model = "qwen3.6-27b-ud-mlx"
 num_ctx = 65536
 gpu_split = 1.0
 
 [agents.qa]
-model = "qwen3.6-35b-a3b-8bit-mlx"
+model = "qwen3.6-27b-ud-mlx"
 num_ctx = 65536
 gpu_split = 1.0
 
 [agents.unity-editor-engineer]
 plugin = "unity-editor-engineer"
-# Trying the 27b (Unsloth Dynamic quant) for scene wiring — the 35b-a3b
-# kept hand-writing script-execute with hallucinated APIs instead of
-# emitting the declarative wiring_plan. NOTE: the Mac serves ONE model at
-# a time, so this forces an LM Studio JIT swap to/from the 35b around the
-# editor-engineer step; load qwen3.6-27b-ud-mlx with context >= num_ctx
+# The 27b (Unsloth Dynamic quant) is now the model for the WHOLE pipeline, so
+# the wiring step no longer swaps models. We picked the 27b for wiring because
+# the 35b-a3b kept hand-writing script-execute with hallucinated APIs instead
+# of emitting the declarative wiring_plan; making it the global model removes
+# the JIT swap that 500'd. Load qwen3.6-27b-ud-mlx with context >= num_ctx
 # below or big prompts 400.
 model = "qwen3.6-27b-ud-mlx"
 num_ctx = 65536
@@ -49,13 +54,13 @@ gpu_split = 1.0
 
 [agents.shader-engineer]
 plugin = "shader-engineer"
-model = "qwen3.6-35b-a3b-8bit-mlx"
+model = "qwen3.6-27b-ud-mlx"
 num_ctx = 65536
 gpu_split = 1.0
 
 [agents.unity-qa]
 plugin = "unity-qa"
-model = "qwen3.6-35b-a3b-8bit-mlx"
+model = "qwen3.6-27b-ud-mlx"
 num_ctx = 65536
 gpu_split = 1.0
 
