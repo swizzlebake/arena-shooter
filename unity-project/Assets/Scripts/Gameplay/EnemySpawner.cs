@@ -8,14 +8,21 @@ namespace Gameplay
         [SerializeField] private float spawnInterval = 2f;
         [SerializeField] private int maxEnemies = 10;
 
+        public bool IsSpawning { get; private set; }
         public int CurrentEnemyCount { get; private set; }
 
         private float timer;
-        private bool isSpawning;
+
+        public void Configure(GameObject prefab, float spawnInterval, int maxEnemies)
+        {
+            enemyPrefab = prefab;
+            this.spawnInterval = spawnInterval;
+            this.maxEnemies = maxEnemies;
+        }
 
         private void Update()
         {
-            if (!isSpawning) return;
+            if (!IsSpawning) return;
 
             timer += Time.deltaTime;
             if (timer >= spawnInterval)
@@ -27,13 +34,13 @@ namespace Gameplay
 
         public void StartSpawning()
         {
-            isSpawning = true;
+            IsSpawning = true;
             timer = 0f;
         }
 
         public void StopSpawning()
         {
-            isSpawning = false;
+            IsSpawning = false;
             DestroyAllEnemies();
         }
 
@@ -49,6 +56,9 @@ namespace Gameplay
                 CurrentEnemyCount++;
             }
         }
+
+        // Exposed for testability to verify cap logic without instantiating prefabs in unit tests
+        public void SimulateSpawn() => SpawnEnemy();
 
         private void DestroyAllEnemies()
         {

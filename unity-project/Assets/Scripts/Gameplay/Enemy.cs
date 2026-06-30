@@ -15,6 +15,12 @@ namespace Gameplay
         public Vector2 MoveDirection =>
             playerController != null ? (playerController.transform.position - transform.position).normalized : Vector2.zero;
 
+        public void Configure(float maxHealth, float moveSpeed)
+        {
+            this.maxHealth = maxHealth;
+            this.moveSpeed = moveSpeed;
+        }
+
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
