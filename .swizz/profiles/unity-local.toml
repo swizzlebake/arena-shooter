@@ -81,3 +81,27 @@ capabilities = [
   "compilation.check",
 ]
 auto_approve_writes = false
+
+# Make the pre-merge compile gate fail CLOSED for this project. The unity
+# profile configures the gate (assets-refresh against the Editor) but leaves
+# require=false, so when the MCP bridge is momentarily down — or a real
+# compile error trips only the generic "errors exist" signal the console
+# can't confirm — it degrades to a warning and MERGES anyway. That fail-open
+# is exactly how missing asmdefs / a dropped ugui package / an invalid API
+# call reached develop uncompilable: QA here is static-analysis only and
+# never compiles. require=true blocks the merge instead — never merge what
+# can't be proven to compile. A blocked merge archives the WIP and is
+# recoverable; a silent broken merge is not. Safe under our auto-launch +
+# bridge gate, which already guarantees the Editor is attached during a run,
+# so assets-refresh can always return an authoritative compile verdict.
+#
+# NB: CompileCheck replaces WHOLESALE down the extends chain (pointer, not a
+# per-field merge — loader.go), so this repeats the unity profile's block
+# verbatim and only adds require=true. Keep in sync with
+# internal/profile/embedded/unity.toml's [pipeline.compile_check].
+[pipeline.compile_check]
+connector = "unity-editor"
+tool = "assets-refresh"
+refresh_after_apply = true
+clear_tool = "console-clear-logs"
+require = true
