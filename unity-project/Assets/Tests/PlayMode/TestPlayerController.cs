@@ -44,7 +44,7 @@ namespace Gameplay.Tests
             var moveAction = asset.FindAction("Move");
             var aimAction = asset.FindAction("Aim");
 
-            controller.Configure(new InputActionReference(moveAction), new InputActionReference(aimAction));
+            controller.Configure(InputActionReference.Create(moveAction), InputActionReference.Create(aimAction));
 
             Assert.IsNotNull(controller);
         }

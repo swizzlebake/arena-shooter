@@ -11,7 +11,7 @@ namespace UI
 
         public void Configure(GameManager manager) => gameManager = manager;
 
-        private void Update()
+        public void Update()
         {
             if (gameManager != null && scoreText != null)
             {
