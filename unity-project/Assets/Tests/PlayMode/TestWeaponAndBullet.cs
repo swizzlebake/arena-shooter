@@ -39,21 +39,21 @@ namespace Gameplay.Tests
         [Test]
         public void Weapon_BulletRotation_AlignsWithAimDirection()
         {
-            var aimDir = new Vector2(1f, 0f);
-            var rot = weapon.GetBulletRotation(aimDir);
-            Assert.AreEqual(Vector3.right, rot * Vector3.right);
+            // The bullet's local +X (Vector3.right) should point along the aim
+            // direction. Compare with tolerance: Quaternion math leaves sub-epsilon
+            // float error, and Assert.AreEqual on Vector3 uses exact equality.
+            void AssertAligned(Vector2 aimDir)
+            {
+                Vector3 forward = weapon.GetBulletRotation(aimDir) * Vector3.right;
+                Vector3 expected = new Vector3(aimDir.x, aimDir.y, 0f);
+                Assert.Less(Vector3.Distance(expected, forward), 1e-4f,
+                    $"aim {aimDir}: expected {expected} but was {forward}");
+            }
 
-            aimDir = new Vector2(0f, 1f);
-            rot = weapon.GetBulletRotation(aimDir);
-            Assert.AreEqual(Vector3.up, rot * Vector3.right);
-
-            aimDir = new Vector2(-1f, 0f);
-            rot = weapon.GetBulletRotation(aimDir);
-            Assert.AreEqual(Vector3.back, rot * Vector3.right);
-
-            aimDir = new Vector2(0f, -1f);
-            rot = weapon.GetBulletRotation(aimDir);
-            Assert.AreEqual(Vector3.down, rot * Vector3.right);
+            AssertAligned(new Vector2(1f, 0f));
+            AssertAligned(new Vector2(0f, 1f));
+            AssertAligned(new Vector2(-1f, 0f));
+            AssertAligned(new Vector2(0f, -1f));
         }
 
         [Test]
