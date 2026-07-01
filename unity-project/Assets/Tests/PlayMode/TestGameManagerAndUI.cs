@@ -1,4 +1,3 @@
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using Gameplay;
@@ -69,8 +68,7 @@ namespace Gameplay.Tests
             enemyGO.AddComponent<BoxCollider2D>();
             var enemy = enemyGO.AddComponent<Enemy>();
 
-            var maxHealthField = typeof(Enemy).GetField("maxHealth", BindingFlags.NonPublic | BindingFlags.Instance);
-            maxHealthField?.SetValue(enemy, 1f);
+            enemy.Configure(1f, 3f);
 
             enemyGO.SetActive(false);
             enemyGO.SetActive(true);
