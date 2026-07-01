@@ -12,7 +12,9 @@ namespace Gameplay
 
         public bool IsSpawning { get; private set; }
         public int CurrentEnemyCount { get; private set; }
-        public int CurrentWave { get; private set; }
+
+        private int currentWave;
+        public int CurrentWave => currentWave;
 
         private float timer;
         private int spawnedInCurrentWave;
