@@ -1,9 +1,11 @@
 using UnityEngine;
+using Game;
 
 namespace Gameplay
 {
     public class EnemySpawner : MonoBehaviour
     {
+        [SerializeField] private WavePlan wavePlan;
         [SerializeField] private GameObject enemyPrefab;
         [SerializeField] private float spawnInterval = 2f;
         [SerializeField] private int maxEnemies = 10;
@@ -11,7 +13,12 @@ namespace Gameplay
         public bool IsSpawning { get; private set; }
         public int CurrentEnemyCount { get; private set; }
 
+        private int currentWave;
+        public int CurrentWave => currentWave;
+
         private float timer;
+        private int spawnedInCurrentWave;
+        private float interWaveTimer;
 
         public void Configure(GameObject prefab, float spawnInterval, int maxEnemies)
         {
@@ -20,12 +27,34 @@ namespace Gameplay
             this.maxEnemies = maxEnemies;
         }
 
+        public void Configure(WavePlan plan)
+        {
+            wavePlan = plan;
+        }
+
         private void Update()
         {
             if (!IsSpawning) return;
 
+            if (wavePlan != null && IsWaveComplete())
+            {
+                if (wavePlan.HasNextWave(currentWave))
+                {
+                    interWaveTimer += Time.deltaTime;
+                    if (interWaveTimer >= wavePlan[currentWave].InterWaveDelay)
+                    {
+                        AdvanceWave();
+                    }
+                    return;
+                }
+
+                IsSpawning = false;
+                return;
+            }
+
             timer += Time.deltaTime;
-            if (timer >= spawnInterval)
+            float interval = wavePlan != null ? wavePlan[currentWave].SpawnInterval : spawnInterval;
+            if (timer >= interval)
             {
                 timer = 0f;
                 SpawnEnemy();
@@ -36,6 +65,9 @@ namespace Gameplay
         {
             IsSpawning = true;
             timer = 0f;
+            currentWave = 0;
+            spawnedInCurrentWave = 0;
+            interWaveTimer = 0f;
         }
 
         public void StopSpawning()
@@ -44,9 +76,17 @@ namespace Gameplay
             DestroyAllEnemies();
         }
 
+        public void OnEnemyKilled()
+        {
+            CurrentEnemyCount = Mathf.Max(0, CurrentEnemyCount - 1);
+        }
+
         private void SpawnEnemy()
         {
             if (CurrentEnemyCount >= maxEnemies) return;
+
+            if (wavePlan != null && spawnedInCurrentWave >= wavePlan[currentWave].EnemiesToSpawn)
+                return;
 
             Vector2 spawnPos = GetRandomEdgePosition();
             var enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
@@ -54,11 +94,26 @@ namespace Gameplay
             if (enemy != null)
             {
                 CurrentEnemyCount++;
+                spawnedInCurrentWave++;
             }
         }
 
-        // Exposed for testability to verify cap logic without instantiating prefabs in unit tests
         public void SimulateSpawn() => SpawnEnemy();
+
+        private bool IsWaveComplete()
+        {
+            if (wavePlan == null) return false;
+
+            WaveConfig wave = wavePlan[currentWave];
+            return spawnedInCurrentWave >= wave.EnemiesToSpawn && CurrentEnemyCount == 0;
+        }
+
+        private void AdvanceWave()
+        {
+            currentWave++;
+            spawnedInCurrentWave = 0;
+            interWaveTimer = 0f;
+        }
 
         private void DestroyAllEnemies()
         {
