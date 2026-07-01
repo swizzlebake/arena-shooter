@@ -15,6 +15,7 @@ namespace Gameplay
         public void Initialize(Vector2 direction, float speed, float bulletDamage)
         {
             damage = bulletDamage;
+            timer = 0f;
             rb.linearVelocity = direction * (speed > 0f ? speed : bulletSpeed);
         }
 
@@ -30,7 +31,7 @@ namespace Gameplay
             timer += Time.deltaTime;
             if (timer >= lifetime)
             {
-                Destroy(gameObject);
+                ReturnToPool();
             }
         }
 
@@ -40,6 +41,18 @@ namespace Gameplay
             if (damageable != null)
             {
                 damageable.TakeDamage(damage);
+                ReturnToPool();
+            }
+        }
+
+        private void ReturnToPool()
+        {
+            if (ObjectPoolManager.Instance != null)
+            {
+                ObjectPoolManager.Instance.ReturnBullet(gameObject);
+            }
+            else
+            {
                 Destroy(gameObject);
             }
         }

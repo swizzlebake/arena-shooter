@@ -19,12 +19,13 @@ namespace Gameplay
         {
             this.maxHealth = maxHealth;
             this.moveSpeed = moveSpeed;
+            IsAlive = true;
         }
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
-            playerController = UnityEngine.Object.FindFirstObjectByType<PlayerController>();
+            playerController = Object.FindFirstObjectByType<PlayerController>();
         }
 
         private void Update()
@@ -53,7 +54,21 @@ namespace Gameplay
         private void Die()
         {
             IsAlive = false;
-            Destroy(gameObject);
+
+            var spawner = Object.FindFirstObjectByType<EnemySpawner>();
+            if (spawner != null)
+            {
+                spawner.OnEnemyKilled();
+            }
+
+            if (ObjectPoolManager.Instance != null)
+            {
+                ObjectPoolManager.Instance.ReturnEnemy(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

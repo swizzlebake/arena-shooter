@@ -89,9 +89,18 @@ namespace Gameplay
                 return;
 
             Vector2 spawnPos = GetRandomEdgePosition();
-            var enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
 
-            if (enemy != null)
+            GameObject enemyObj;
+            if (ObjectPoolManager.Instance != null)
+            {
+                enemyObj = ObjectPoolManager.Instance.CheckoutEnemy(spawnPos);
+            }
+            else
+            {
+                enemyObj = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+            }
+
+            if (enemyObj != null)
             {
                 CurrentEnemyCount++;
                 spawnedInCurrentWave++;
@@ -117,10 +126,17 @@ namespace Gameplay
 
         private void DestroyAllEnemies()
         {
-            var enemies = UnityEngine.Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+            var enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
             foreach (var enemy in enemies)
             {
-                Destroy(enemy.gameObject);
+                if (ObjectPoolManager.Instance != null)
+                {
+                    ObjectPoolManager.Instance.ReturnEnemy(enemy.gameObject);
+                }
+                else
+                {
+                    Destroy(enemy.gameObject);
+                }
             }
             CurrentEnemyCount = 0;
         }

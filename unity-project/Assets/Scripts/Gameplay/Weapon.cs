@@ -29,10 +29,21 @@ namespace Gameplay
                 if (playerController != null && playerController.AimDirection.sqrMagnitude > 0f)
                 {
                     float angle = Mathf.Atan2(playerController.AimDirection.y, playerController.AimDirection.x) * Mathf.Rad2Deg;
-                    var bullet = Instantiate(bulletPrefab, transform.position, Quaternion.Euler(0f, 0f, angle));
-                    if (bullet != null)
+                    Quaternion rotation = Quaternion.Euler(0f, 0f, angle);
+
+                    GameObject bulletObj;
+                    if (ObjectPoolManager.Instance != null)
                     {
-                        var bulletScript = bullet.GetComponent<Bullet>();
+                        bulletObj = ObjectPoolManager.Instance.CheckoutBullet(transform.position, rotation);
+                    }
+                    else
+                    {
+                        bulletObj = Instantiate(bulletPrefab, transform.position, rotation);
+                    }
+
+                    if (bulletObj != null)
+                    {
+                        var bulletScript = bulletObj.GetComponent<Bullet>();
                         if (bulletScript != null)
                         {
                             bulletScript.Initialize(playerController.AimDirection, 0f, bulletDamage);
