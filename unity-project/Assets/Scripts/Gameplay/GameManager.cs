@@ -24,6 +24,11 @@ namespace Gameplay
             gameOverPresenter = presenter;
         }
 
+        private void Start()
+        {
+            AudioManager.Instance?.PlayMusic();
+        }
+
         public void AddScore(int amount)
         {
             if (IsGameOver) return;
@@ -34,6 +39,7 @@ namespace Gameplay
         {
             if (IsGameOver) return;
             IsGameOver = true;
+            AudioManager.Instance?.StopMusic();
             gameOverPresenter?.Show();
         }
 

@@ -41,6 +41,7 @@ namespace Gameplay
             if (damageable != null)
             {
                 damageable.TakeDamage(damage);
+                AudioManager.Instance?.PlayHitSFX();
                 ReturnToPool();
             }
         }

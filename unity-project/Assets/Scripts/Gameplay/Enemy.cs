@@ -59,6 +59,8 @@ namespace Gameplay
         {
             IsAlive = false;
 
+            AudioManager.Instance?.PlayDeathSFX();
+
             if (enemySpawner != null)
             {
                 enemySpawner.OnEnemyKilled();
