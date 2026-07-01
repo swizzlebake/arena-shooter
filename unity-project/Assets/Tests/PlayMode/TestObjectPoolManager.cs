@@ -36,8 +36,10 @@ namespace Gameplay.Tests
             enemyField?.SetValue(poolManager, enemyPrefab);
             bulletField?.SetValue(poolManager, bulletPrefab);
 
-            poolManager.Awake();
-            poolManager.Start();
+            typeof(ObjectPoolManager).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.Invoke(poolManager, null);
+            typeof(ObjectPoolManager).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Instance)
+                ?.Invoke(poolManager, null);
         }
 
         [TearDown]
