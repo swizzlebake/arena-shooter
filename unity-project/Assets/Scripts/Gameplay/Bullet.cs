@@ -16,7 +16,7 @@ namespace Gameplay
         {
             damage = bulletDamage;
             timer = 0f;
-            rb.linearVelocity = direction * (speed > 0f ? speed : bulletSpeed);
+            rb.velocity = direction * (speed > 0f ? speed : bulletSpeed);
         }
 
         public void SetDamage(float amount) => damage = amount;
