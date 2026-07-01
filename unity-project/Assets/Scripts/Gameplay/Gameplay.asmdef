@@ -1,9 +1,8 @@
 {
     "name": "Gameplay",
-    "rootNamespace": "Gameplay",
-    "references": [
-        "Game",
-        "Unity.InputSystem"
+    "rootNamespace": "",
+    "references": ["Game",
+"Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

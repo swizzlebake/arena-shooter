@@ -1,13 +1,28 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Gameplay
 {
+    public interface IGameOverPresenter
+    {
+        void Show();
+        void OnRestartButtonClicked();
+    }
+
     public class GameManager : MonoBehaviour
     {
         [SerializeField] private int score;
+        [SerializeField] private IGameOverPresenter gameOverPresenter;
+        [SerializeField] private int scorePerKill = 10;
 
         public int Score => score;
         public bool IsGameOver { get; private set; }
+        public int ScorePerKill => scorePerKill;
+
+        public void Configure(IGameOverPresenter presenter)
+        {
+            gameOverPresenter = presenter;
+        }
 
         public void AddScore(int amount)
         {
@@ -19,6 +34,20 @@ namespace Gameplay
         {
             if (IsGameOver) return;
             IsGameOver = true;
+            gameOverPresenter?.Show();
+        }
+
+        public void RestartGame()
+        {
+            gameOverPresenter?.OnRestartButtonClicked();
+        }
+
+        private void Update()
+        {
+            if (IsGameOver && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+            {
+                RestartGame();
+            }
         }
     }
 }
