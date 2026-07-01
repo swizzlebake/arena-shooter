@@ -137,7 +137,7 @@ namespace Gameplay
 
         private void DestroyAllEnemies()
         {
-            var enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+            var enemies = UnityEngine.Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
             foreach (var enemy in enemies)
             {
                 if (ObjectPoolManager.Instance != null)
@@ -154,16 +154,16 @@ namespace Gameplay
 
         private Vector2 GetRandomEdgePosition()
         {
-            float x = Random.Range(-9f, 9f);
-            float y = Random.Range(-5f, 5f);
+            float x = UnityEngine.Random.Range(-9f, 9f);
+            float y = UnityEngine.Random.Range(-5f, 5f);
 
-            if (Random.value < 0.5f)
+            if (UnityEngine.Random.value < 0.5f)
             {
-                x = Random.value < 0.5f ? -9f : 9f;
+                x = UnityEngine.Random.value < 0.5f ? -9f : 9f;
             }
             else
             {
-                y = Random.value < 0.5f ? -5f : 5f;
+                y = UnityEngine.Random.value < 0.5f ? -5f : 5f;
             }
 
             return new Vector2(x, y);
