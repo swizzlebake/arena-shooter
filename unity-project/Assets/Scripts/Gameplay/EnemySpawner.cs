@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Game;
 
@@ -5,10 +6,13 @@ namespace Gameplay
 {
     public class EnemySpawner : MonoBehaviour
     {
-        [SerializeField] private WavePlan wavePlan;
+        [Obsolete("Managed by ObjectPoolManager. Remove this field from the Inspector.", false)]
         [SerializeField] private GameObject enemyPrefab;
+        [SerializeField] private WavePlan wavePlan;
         [SerializeField] private float spawnInterval = 2f;
         [SerializeField] private int maxEnemies = 10;
+        [SerializeField] private float defaultEnemyHealth = 2f;
+        [SerializeField] private float defaultEnemySpeed = 3f;
 
         public bool IsSpawning { get; private set; }
         public int CurrentEnemyCount { get; private set; }
@@ -89,10 +93,26 @@ namespace Gameplay
                 return;
 
             Vector2 spawnPos = GetRandomEdgePosition();
-            var enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
 
-            if (enemy != null)
+            GameObject enemyObj;
+            if (ObjectPoolManager.Instance != null)
             {
+                enemyObj = ObjectPoolManager.Instance.CheckoutEnemy(spawnPos);
+            }
+            else
+            {
+                enemyObj = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+            }
+
+            if (enemyObj != null)
+            {
+                float waveScale = 1f + currentWave * 0.1f;
+                var enemyComponent = enemyObj.GetComponent<Enemy>();
+                if (enemyComponent != null)
+                {
+                    enemyComponent.Configure(defaultEnemyHealth * waveScale, defaultEnemySpeed * waveScale);
+                }
+
                 CurrentEnemyCount++;
                 spawnedInCurrentWave++;
             }
@@ -120,23 +140,30 @@ namespace Gameplay
             var enemies = UnityEngine.Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
             foreach (var enemy in enemies)
             {
-                Destroy(enemy.gameObject);
+                if (ObjectPoolManager.Instance != null)
+                {
+                    ObjectPoolManager.Instance.ReturnEnemy(enemy.gameObject);
+                }
+                else
+                {
+                    Destroy(enemy.gameObject);
+                }
             }
             CurrentEnemyCount = 0;
         }
 
         private Vector2 GetRandomEdgePosition()
         {
-            float x = Random.Range(-9f, 9f);
-            float y = Random.Range(-5f, 5f);
+            float x = UnityEngine.Random.Range(-9f, 9f);
+            float y = UnityEngine.Random.Range(-5f, 5f);
 
-            if (Random.value < 0.5f)
+            if (UnityEngine.Random.value < 0.5f)
             {
-                x = Random.value < 0.5f ? -9f : 9f;
+                x = UnityEngine.Random.value < 0.5f ? -9f : 9f;
             }
             else
             {
-                y = Random.value < 0.5f ? -5f : 5f;
+                y = UnityEngine.Random.value < 0.5f ? -5f : 5f;
             }
 
             return new Vector2(x, y);

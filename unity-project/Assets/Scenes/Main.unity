@@ -335,6 +335,8 @@ MonoBehaviour:
   enemyPrefab: {fileID: 3899216462540243477, guid: 620a99d108980362f8170a35e144b936, type: 3}
   spawnInterval: 2
   maxEnemies: 10
+  defaultEnemyHealth: 2
+  defaultEnemySpeed: 3
 --- !u!4 &143875436
 Transform:
   m_ObjectHideFlags: 0
@@ -1147,6 +1149,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1253115418}
   - component: {fileID: 1253115417}
+  - component: {fileID: 1253115419}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -1182,6 +1185,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1253115419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1253115416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18fa97b20ab47e826b4c16a22a8ca67f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Gameplay::Gameplay.ObjectPoolManager
+  enemyPrefab: {fileID: 3899216462540243477, guid: 620a99d108980362f8170a35e144b936, type: 3}
+  bulletPrefab: {fileID: 1171899397045352318, guid: 2c72a04b2c6af9dfbb76d14489f49028, type: 3}
+  initialEnemyCount: 10
+  initialBulletCount: 50
 --- !u!1 &1781676928
 GameObject:
   m_ObjectHideFlags: 0
