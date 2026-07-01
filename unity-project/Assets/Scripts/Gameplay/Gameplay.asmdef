@@ -1,10 +1,7 @@
 {
     "name": "Gameplay",
-    "rootNamespace": "Gameplay",
-    "references": [
-        "Game",
-        "Unity.InputSystem"
-    ],
+    "rootNamespace": "",
+    "references": ["Game", "UI"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -11,6 +11,7 @@ namespace Gameplay
 
         private Rigidbody2D rb;
         private PlayerController playerController;
+        private GameManager gameManager;
 
         public Vector2 MoveDirection =>
             playerController != null ? (playerController.transform.position - transform.position).normalized : Vector2.zero;
@@ -26,6 +27,7 @@ namespace Gameplay
         {
             rb = GetComponent<Rigidbody2D>();
             playerController = Object.FindFirstObjectByType<PlayerController>();
+            gameManager = Object.FindFirstObjectByType<GameManager>();
         }
 
         private void Update()
@@ -59,6 +61,11 @@ namespace Gameplay
             if (spawner != null)
             {
                 spawner.OnEnemyKilled();
+            }
+
+            if (gameManager != null)
+            {
+                gameManager.AddScore(gameManager.ScorePerKill);
             }
 
             if (ObjectPoolManager.Instance != null)
