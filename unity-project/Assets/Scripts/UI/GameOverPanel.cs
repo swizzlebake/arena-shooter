@@ -10,8 +10,8 @@ namespace UI
 
         public void Configure(GameObject p) => panel = p;
 
-        public void Show() => panel.SetActive(true);
-        public void Hide() => panel.SetActive(false);
+        public void Show() => (panel ?? gameObject).SetActive(true);
+        public void Hide() => (panel ?? gameObject).SetActive(false);
 
         public void OnRestartButtonClicked()
         {
