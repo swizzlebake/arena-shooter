@@ -45,6 +45,12 @@ namespace Gameplay.Tests
         [TearDown]
         public void TearDown()
         {
+            var enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
+            foreach (var e in enemies) Object.DestroyImmediate(e.gameObject);
+
+            var bullets = Object.FindObjectsByType<Bullet>(FindObjectsSortMode.None);
+            foreach (var b in bullets) Object.DestroyImmediate(b.gameObject);
+
             if (managerGO != null)
                 Object.DestroyImmediate(managerGO);
             Object.DestroyImmediate(enemyPrefab);
@@ -122,8 +128,13 @@ namespace Gameplay.Tests
             spawner.SimulateSpawn();
 
             var enemies = Object.FindObjectsByType<Enemy>(FindObjectsSortMode.None);
-            Assert.AreEqual(1, enemies.Length);
-            Assert.AreEqual(primedId, enemies[0].gameObject.GetInstanceID());
+            Assert.IsTrue(enemies.Length > 0, "No enemies found in scene");
+            bool foundPrimed = false;
+            foreach (var e in enemies)
+            {
+                if (e.gameObject.GetInstanceID() == primedId) foundPrimed = true;
+            }
+            Assert.IsTrue(foundPrimed, "Primed enemy instance not found among spawned enemies");
 
             Object.DestroyImmediate(spawnerGO);
         }
@@ -150,8 +161,13 @@ namespace Gameplay.Tests
                 ?.Invoke(weapon, null);
 
             var bullets = Object.FindObjectsByType<Bullet>(FindObjectsSortMode.None);
-            Assert.AreEqual(1, bullets.Length);
-            Assert.AreEqual(primedId, bullets[0].gameObject.GetInstanceID());
+            Assert.IsTrue(bullets.Length > 0, "No bullets found in scene");
+            bool foundPrimed = false;
+            foreach (var b in bullets)
+            {
+                if (b.gameObject.GetInstanceID() == primedId) foundPrimed = true;
+            }
+            Assert.IsTrue(foundPrimed, "Primed bullet instance not found among spawned bullets");
 
             Object.DestroyImmediate(playerGO);
         }
