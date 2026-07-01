@@ -32,11 +32,16 @@ namespace Gameplay
             gameOverPanel?.Show();
         }
 
+        public void RestartGame()
+        {
+            gameOverPanel?.OnRestartButtonClicked();
+        }
+
         private void Update()
         {
-            if (IsGameOver && Keyboard.current.rKey.wasPressedThisFrame)
+            if (IsGameOver && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
             {
-                gameOverPanel?.OnRestartButtonClicked();
+                RestartGame();
             }
         }
     }

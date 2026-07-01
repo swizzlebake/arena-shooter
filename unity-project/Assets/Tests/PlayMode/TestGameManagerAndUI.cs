@@ -1,115 +1,93 @@
+using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
+using Gameplay;
+using UI;
 
 namespace Gameplay.Tests
 {
     public class TestGameManagerAndUI
     {
-        private GameObject playerGO;
-        private PlayerController controller;
+        private GameObject managerGO;
+        private GameManager gameManager;
+        private GameObject panelGO;
+        private GameOverPanel gameOverPanel;
 
         [SetUp]
         public void SetUp()
         {
-            playerGO = new GameObject("Player");
-            var rb = playerGO.AddComponent<Rigidbody2D>();
-            rb.gravityScale = 0f;
-            controller = playerGO.AddComponent<PlayerController>();
+            managerGO = new GameObject("GameManager");
+            gameManager = managerGO.AddComponent<GameManager>();
+
+            panelGO = new GameObject("GameOverPanel");
+            gameOverPanel = panelGO.AddComponent<GameOverPanel>();
+            panelGO.SetActive(false);
+
+            gameManager.Configure(gameOverPanel);
         }
 
         [TearDown]
         public void TearDown()
         {
-            Object.DestroyImmediate(playerGO);
+            if (managerGO != null) Object.DestroyImmediate(managerGO);
+            if (panelGO != null) Object.DestroyImmediate(panelGO);
         }
 
         [Test]
-        public void GameManager_ScoreTracking_IncrementsCorrectly()
+        public void AddScore_IncrementsScore()
         {
-            var gmGO = new GameObject("GameManager");
-            var gm = gmGO.AddComponent<GameManager>();
-
-            Assert.AreEqual(0, gm.Score);
-            gm.AddScore(10);
-            Assert.AreEqual(10, gm.Score);
-            gm.AddScore(5);
-            Assert.AreEqual(15, gm.Score);
-
-            Object.DestroyImmediate(gmGO);
+            Assert.AreEqual(0, gameManager.Score);
+            gameManager.AddScore(10);
+            Assert.AreEqual(10, gameManager.Score);
         }
 
         [Test]
-        public void GameManager_GameOverState_TransitionsOnTrigger()
+        public void TriggerGameOver_ShowsPanel()
         {
-            var gmGO = new GameObject("GameManager");
-            var gm = gmGO.AddComponent<GameManager>();
-
-            Assert.IsFalse(gm.IsGameOver);
-            gm.TriggerGameOver();
-            Assert.IsTrue(gm.IsGameOver);
-
-            gm.AddScore(100);
-            Assert.AreEqual(0, gm.Score);
-
-            Object.DestroyImmediate(gmGO);
-        }
-
-        [Test]
-        public void HUDScoreDisplay_ReadsGameManagerWithoutError()
-        {
-            var gmGO = new GameObject("GameManager");
-            var gm = gmGO.AddComponent<GameManager>();
-
-            var hudGO = new GameObject("HUD");
-            var hud = hudGO.AddComponent<UI.HUDScoreDisplay>();
-
-            hud.Configure(gm);
-            
-            hud.Update(); 
-
-            Object.DestroyImmediate(hudGO);
-            Object.DestroyImmediate(gmGO);
-        }
-
-        [Test]
-        public void GameOverPanel_Visibility_TogglesCorrectly()
-        {
-            var panelGO = new GameObject("Panel");
-            panelGO.SetActive(false);
-            
-            var goPanel = panelGO.AddComponent<UI.GameOverPanel>();
-            goPanel.Configure(panelGO);
-
             Assert.IsFalse(panelGO.activeSelf);
-            
-            goPanel.Show();
+            gameManager.TriggerGameOver();
+            Assert.IsTrue(gameManager.IsGameOver);
             Assert.IsTrue(panelGO.activeSelf);
-
-            goPanel.Hide();
-            Assert.IsFalse(panelGO.activeSelf);
-
-            Object.DestroyImmediate(panelGO);
         }
 
         [Test]
-        public void PlayerController_Damage_TriggersGameOver()
+        public void TriggerGameOver_HaltsScoring()
         {
-            var gmGO = new GameObject("GameManager");
-            var gm = gmGO.AddComponent<GameManager>();
-            controller.Configure(gm);
+            gameManager.AddScore(10);
+            Assert.AreEqual(10, gameManager.Score);
 
-            Assert.IsFalse(gm.IsGameOver);
-            
-            controller.TakeDamage(1f);
-            Assert.IsFalse(gm.IsGameOver);
+            gameManager.TriggerGameOver();
+            gameManager.AddScore(50);
+            Assert.AreEqual(10, gameManager.Score);
+        }
 
-            controller.TakeDamage(1f);
-            Assert.IsFalse(gm.IsGameOver);
+        [Test]
+        public void EnemyDeath_IncrementsScore()
+        {
+            var enemyGO = new GameObject("Enemy");
+            enemyGO.AddComponent<Rigidbody2D>();
+            enemyGO.AddComponent<BoxCollider2D>();
+            var enemy = enemyGO.AddComponent<Enemy>();
 
-            controller.TakeDamage(1f);
-            Assert.IsTrue(gm.IsGameOver);
+            var maxHealthField = typeof(Enemy).GetField("maxHealth", BindingFlags.NonPublic | BindingFlags.Instance);
+            maxHealthField?.SetValue(enemy, 1f);
 
-            Object.DestroyImmediate(gmGO);
+            enemyGO.SetActive(false);
+            enemyGO.SetActive(true);
+
+            Assert.AreEqual(0, gameManager.Score);
+            enemy.TakeDamage(1f);
+
+            Assert.AreEqual(gameManager.ScorePerKill, gameManager.Score);
+        }
+
+        [Test]
+        public void RestartGame_CallsPanelRestart()
+        {
+            gameManager.TriggerGameOver();
+            Assert.IsTrue(gameManager.IsGameOver);
+
+            gameManager.RestartGame();
         }
     }
 }

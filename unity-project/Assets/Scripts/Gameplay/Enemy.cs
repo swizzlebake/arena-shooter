@@ -12,6 +12,7 @@ namespace Gameplay
         private Rigidbody2D rb;
         private PlayerController playerController;
         private GameManager gameManager;
+        private EnemySpawner enemySpawner;
 
         public Vector2 MoveDirection =>
             playerController != null ? (playerController.transform.position - transform.position).normalized : Vector2.zero;
@@ -28,6 +29,7 @@ namespace Gameplay
             rb = GetComponent<Rigidbody2D>();
             playerController = Object.FindFirstObjectByType<PlayerController>();
             gameManager = Object.FindFirstObjectByType<GameManager>();
+            enemySpawner = Object.FindFirstObjectByType<EnemySpawner>();
         }
 
         private void Update()
@@ -57,10 +59,9 @@ namespace Gameplay
         {
             IsAlive = false;
 
-            var spawner = Object.FindFirstObjectByType<EnemySpawner>();
-            if (spawner != null)
+            if (enemySpawner != null)
             {
-                spawner.OnEnemyKilled();
+                enemySpawner.OnEnemyKilled();
             }
 
             if (gameManager != null)
