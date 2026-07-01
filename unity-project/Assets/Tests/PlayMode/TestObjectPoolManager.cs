@@ -2,6 +2,7 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using Game;
+using Gameplay;
 
 namespace Gameplay.Tests
 {
@@ -26,6 +27,7 @@ namespace Gameplay.Tests
             bulletPrefab.AddComponent<Bullet>();
 
             managerGO = new GameObject("PoolManager");
+            managerGO.SetActive(false);
             poolManager = managerGO.AddComponent<ObjectPoolManager>();
 
             var enemyField = typeof(ObjectPoolManager).GetField("enemyPrefab",
@@ -36,8 +38,8 @@ namespace Gameplay.Tests
             enemyField?.SetValue(poolManager, enemyPrefab);
             bulletField?.SetValue(poolManager, bulletPrefab);
 
-            typeof(ObjectPoolManager).GetMethod("Awake", BindingFlags.NonPublic | BindingFlags.Instance)
-                ?.Invoke(poolManager, null);
+            managerGO.SetActive(true);
+
             typeof(ObjectPoolManager).GetMethod("Start", BindingFlags.NonPublic | BindingFlags.Instance)
                 ?.Invoke(poolManager, null);
         }
@@ -50,6 +52,20 @@ namespace Gameplay.Tests
 
             var bullets = Object.FindObjectsByType<Bullet>(FindObjectsSortMode.None);
             foreach (var b in bullets) Object.DestroyImmediate(b.gameObject);
+
+            if (poolManager != null)
+            {
+                var enemyPoolField = typeof(ObjectPoolManager).GetField("enemyPool",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+                var bulletPoolField = typeof(ObjectPoolManager).GetField("bulletPool",
+                    BindingFlags.NonPublic | BindingFlags.Instance);
+
+                var enemyPool = enemyPoolField?.GetValue(poolManager) as ObjectPool;
+                var bulletPool = bulletPoolField?.GetValue(poolManager) as ObjectPool;
+
+                enemyPool?.ReturnAll();
+                bulletPool?.ReturnAll();
+            }
 
             if (managerGO != null)
                 Object.DestroyImmediate(managerGO);
