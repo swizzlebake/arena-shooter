@@ -22,6 +22,6 @@ namespace Game
 
         public static WavePlan Create(params WaveConfig[] waves) => new WavePlan(waves);
 
-        public static WavePlan Create(IList<WaveConfig> waves) => new WavePlan(waves);
+        public static WavePlan Create(IList<WaveConfig> waves) => new WavePlan((IReadOnlyList<WaveConfig>)waves);
     }
 }
