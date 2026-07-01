@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 namespace Game
 {
+    [System.Serializable]
     public class WavePlan
     {
         private readonly IReadOnlyList<WaveConfig> waves;
