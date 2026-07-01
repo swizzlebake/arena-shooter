@@ -10,6 +10,7 @@ namespace Gameplay.Tests
         private GameObject spawnerGO;
         private EnemySpawner spawner;
         private WavePlan wavePlan;
+        private GameObject dummyEnemy;
 
         [SetUp]
         public void SetUp()
@@ -23,7 +24,7 @@ namespace Gameplay.Tests
 
             spawner.Configure(wavePlan);
 
-            var dummyEnemy = new GameObject("DummyEnemy");
+            dummyEnemy = new GameObject("DummyEnemy");
             spawner.Configure(dummyEnemy, 0.1f, 10);
         }
 
@@ -83,7 +84,7 @@ namespace Gameplay.Tests
         [Test]
         public void Spawner_RespectsMaxEnemiesCap()
         {
-            spawner.Configure(null, 0.1f, 2);
+            spawner.Configure(dummyEnemy, 0.1f, 2);
             spawner.StartSpawning();
 
             for (int i = 0; i < 5; i++)
