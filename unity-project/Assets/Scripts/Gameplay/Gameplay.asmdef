@@ -1,7 +1,7 @@
 {
     "name": "Gameplay",
     "rootNamespace": "",
-    "references": ["Game", "UI"],
+    "references": ["Game"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

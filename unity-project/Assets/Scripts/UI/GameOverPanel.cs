@@ -1,9 +1,10 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Gameplay;
 
 namespace UI
 {
-    public class GameOverPanel : MonoBehaviour
+    public class GameOverPanel : MonoBehaviour, IGameOverPresenter
     {
         [SerializeField] private GameObject panel;
 
