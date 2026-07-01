@@ -9,6 +9,8 @@ namespace Gameplay
         [SerializeField] private GameObject enemyPrefab;
         [SerializeField] private float spawnInterval = 2f;
         [SerializeField] private int maxEnemies = 10;
+        [SerializeField] private float defaultEnemyHealth = 2f;
+        [SerializeField] private float defaultEnemySpeed = 3f;
 
         public bool IsSpawning { get; private set; }
         public int CurrentEnemyCount { get; private set; }
@@ -102,6 +104,13 @@ namespace Gameplay
 
             if (enemyObj != null)
             {
+                float waveScale = 1f + currentWave * 0.1f;
+                var enemyComponent = enemyObj.GetComponent<Enemy>();
+                if (enemyComponent != null)
+                {
+                    enemyComponent.Configure(defaultEnemyHealth * waveScale, defaultEnemySpeed * waveScale);
+                }
+
                 CurrentEnemyCount++;
                 spawnedInCurrentWave++;
             }
