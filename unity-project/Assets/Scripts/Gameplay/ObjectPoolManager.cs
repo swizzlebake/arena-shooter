@@ -23,34 +23,56 @@ namespace Gameplay
             }
 
             Instance = this;
-            enemyPool = new ObjectPool(enemyPrefab, initialEnemyCount);
-            bulletPool = new ObjectPool(bulletPrefab, initialBulletCount);
+
+            if (enemyPrefab != null)
+            {
+                enemyPool = new ObjectPool(enemyPrefab, initialEnemyCount);
+            }
+            else
+            {
+                Debug.LogWarning("ObjectPoolManager: enemyPrefab is not assigned. Enemy pool will not be created.");
+            }
+
+            if (bulletPrefab != null)
+            {
+                bulletPool = new ObjectPool(bulletPrefab, initialBulletCount);
+            }
+            else
+            {
+                Debug.LogWarning("ObjectPoolManager: bulletPrefab is not assigned. Bullet pool will not be created.");
+            }
         }
 
         private void Start()
         {
-            enemyPool.PreWarm();
-            bulletPool.PreWarm();
+            if (enemyPool != null)
+                enemyPool.PreWarm();
+            if (bulletPool != null)
+                bulletPool.PreWarm();
         }
 
         public GameObject CheckoutEnemy(Vector2 position)
         {
+            if (enemyPool == null) return null;
             return enemyPool.Checkout(position, Quaternion.identity);
         }
 
         public void ReturnEnemy(GameObject obj)
         {
-            enemyPool.Return(obj);
+            if (enemyPool != null)
+                enemyPool.Return(obj);
         }
 
         public GameObject CheckoutBullet(Vector2 position, Quaternion rotation)
         {
+            if (bulletPool == null) return null;
             return bulletPool.Checkout(position, rotation);
         }
 
         public void ReturnBullet(GameObject obj)
         {
-            bulletPool.Return(obj);
+            if (bulletPool != null)
+                bulletPool.Return(obj);
         }
 
         private void OnDestroy()

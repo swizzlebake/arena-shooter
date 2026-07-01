@@ -4,6 +4,7 @@ namespace Gameplay
 {
     public class Weapon : MonoBehaviour
     {
+        [Obsolete("Managed by ObjectPoolManager. Remove this field from the Inspector.", false)]
         [SerializeField] private GameObject bulletPrefab;
         [SerializeField] private float fireRate = 0.2f;
         [SerializeField] private float bulletDamage = 1f;

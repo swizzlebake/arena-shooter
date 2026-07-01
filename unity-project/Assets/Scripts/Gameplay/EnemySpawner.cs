@@ -5,8 +5,9 @@ namespace Gameplay
 {
     public class EnemySpawner : MonoBehaviour
     {
-        [SerializeField] private WavePlan wavePlan;
+        [Obsolete("Managed by ObjectPoolManager. Remove this field from the Inspector.", false)]
         [SerializeField] private GameObject enemyPrefab;
+        [SerializeField] private WavePlan wavePlan;
         [SerializeField] private float spawnInterval = 2f;
         [SerializeField] private int maxEnemies = 10;
         [SerializeField] private float defaultEnemyHealth = 2f;
