@@ -22,6 +22,9 @@ namespace Gameplay.Tests
             wavePlan = WavePlan.Create(wave1, wave2);
 
             spawner.Configure(wavePlan);
+
+            var dummyEnemy = new GameObject("DummyEnemy");
+            spawner.Configure(dummyEnemy, 0.1f, 10);
         }
 
         [TearDown]
