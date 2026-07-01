@@ -5,7 +5,7 @@ using Game;
 namespace Gameplay.Tests
 {
     [TestFixture]
-    public class TestWaveSpawning : InputTestFixture
+    public class TestWaveSpawning
     {
         private GameObject spawnerGO;
         private EnemySpawner spawner;
