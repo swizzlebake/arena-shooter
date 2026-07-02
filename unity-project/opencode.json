@@ -1,0 +1,16 @@
+{
+  "mcp": {
+    "ai-game-developer": {
+      "command": [
+        "/home/ems/RiderProjects/swizz-unity/unity-project/Library/mcp-server/linux-x64/unity-mcp-server",
+        "port=23118",
+        "plugin-timeout=10000",
+        "client-transport=stdio",
+        "authorization=none",
+        "token=PuRxRSB049fcHpI6nnleyc34H6kxn9xREALw0dhPXuI"
+      ],
+      "enabled": true,
+      "type": "local"
+    }
+  }
+}

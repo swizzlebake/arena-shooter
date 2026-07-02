@@ -22,48 +22,61 @@ target_language = "csharp"
 test_command = ""
 
 [model]
-# Switched off Ollama because CUDA 13.2 (host driver) produces
-# gibberish output with qwen3.6 GGUFs under Ollama's bundled CUDA
-# runtime. Now using llama-server directly. Swizz spawns and reaps
-# the server itself via [model.launch] below — DO NOT pre-start
-# ~/start-llama-server.sh manually. If you do, swizz can't stop the
-# server it didn't spawn, so the artist phase (ComfyUI) will OOM on
-# the 12 GB GPU when both want VRAM. `swizz doctor` warns if it
-# detects a pre-started server.
+# Inference runs on the Mac Studio (emsmac.local, 64 GB) via LM Studio's
+# OpenAI-compatible server (MLX runtime) — the SAME backend as swizz-unity-2.
+# This workspace was moved off its local 12 GB llama-server (qwen3.6-27b Q3)
+# onto the Mac. The WHOLE pipeline now runs one model — qwen3.6-27b-ud-mlx — so
+# there is NO per-agent model swap: the prior split (35b-a3b for most agents,
+# 27b only for the editor-engineer) forced an LM Studio JIT model reload around
+# the wiring step, and that single-model-at-a-time swap returned an HTTP 500
+# mid-run and aborted the task. One model everywhere = no swap, no swap-500.
+# Load qwen3.6-27b-ud-mlx in LM Studio's Developer / Local Server tab at the
+# 65536 context below, "Serve on Local Network", Start Server; confirm the id
+# with: curl http://emsmac.local:1234/v1/models
 #
-# scripts/start-llama-server.sh launches the upstream prebuilt Linux
-# Vulkan llama-server on 127.0.0.1:11435 with the qwen3.6-27b-q3_K_M
-# GGUF, gpu_layers / ctx / cache-type tuned for 12 GB VRAM. Vulkan
-# instead of CUDA because llama.cpp doesn't ship Linux+CUDA prebuilts
-# and the nix-built CUDA binary needed nixGL, which doesn't recognise
-# the NVIDIA Open Kernel Module banner this host runs.
+# IMPORTANT: the Mac serves ONE model at a time — do NOT run swizz-unity and
+# swizz-unity-2 against it concurrently; a second run contends for the single
+# loaded model. The two are also both on Unity-MCP port 23118, so keep only
+# ONE project's Editor open at a time or a run can bind the neighbour's Editor.
 #
-# Per-agent gpu_split / num_ctx in unity-local.toml are ADVISORY
-# under llamacpp — llama-server reads those from the CLI flags above
-# at launch and silently ignores per-request overrides. default_model
-# is informational too (whatever you load via -m wins).
-provider = "llamacpp"
-endpoint = "http://localhost:11435"
-default_model = "qwen3.6:27B"
-gpu_split = 0.45
-num_ctx = 16384
-num_predict = 4096
+# To revert to the local 12 GB llama-server: restore provider="llamacpp",
+# endpoint="http://localhost:11435", default_model="qwen3.6:27B", gpu_split=0.45,
+# num_ctx=32768, num_predict=4096, drop tool_mode/stall_timeout, and re-enable
+# [model.launch] below.
+provider = "openai"
+endpoint = "http://emsmac.local:1234"
+default_model = "qwen3.6-27b-ud-mlx"
+gpu_split = 1.0
+# num_ctx=65536 / num_predict=32768 matched to swizz-unity-2: the overflow guard
+# thresholds the prompt against (num_ctx - num_predict), so num_ctx must stay
+# well above num_predict or it mass-escalates to cloud. Load the LM Studio model
+# at this SAME 65536 context and pin it (65536 is half the 131072 that swapped
+# the 64 GB Mac — verify tok/s on the first run).
+num_ctx = 65536
+num_predict = 32768
 temperature = 0.15
 top_p = 0.9
 stream = true
 stream_mode = "summary"
 keep_alive = "30m"
 think = false
+# Native tool-calling: the openai backend forwards MCP tools on the API's native
+# `tools` array (engages for MCP-capable agents running locally; cloud-escalated
+# turns fall back to the prompt path). Needs a swizz binary >= 7287ec2.
+tool_mode = "native"
+# No-token stall watchdog (seconds): aborts + restarts a wedged stream once, then
+# fails clearly. 300 sits above worst-case prefill on a near-full 65536 context.
+stall_timeout_seconds = 300
 
 [model.launch]
-# DISABLED under [cloud].always = true: every agent call goes to
-# DeepSeek, so the local llama-server is never used for inference.
-# Spawning it would just hold ~10 GB of VRAM and force a pointless
-# evict/restart GPU-swap around the ComfyUI artist phase. With this
-# commented out swizz never starts llama-server and ComfyUI gets the
-# full 12 GB GPU. `swizz doctor` will show `✗ llamacpp unreachable` —
-# harmless under always-cloud (the endpoint is never called).
-# Re-enable both lines (and set always = false) for local-model runs.
+# DISABLED for the all-codex run: with [cloud].always = true every agent
+# call goes to codex, so the local llama-server is never used for
+# inference. Spawning it would just hold ~10 GB of VRAM and force a
+# pointless evict/restart GPU-swap around the ComfyUI artist phase. With
+# this commented out swizz never starts llama-server, and ComfyUI gets
+# the full 12 GB GPU for art (no swap). `swizz doctor` will still show
+# `✗ llamacpp unreachable` — harmless under always-cloud (the endpoint is
+# never called). Re-enable both lines to go back to local-model runs.
 #
 # command         = "/home/ems/start-llama-server.sh"
 # timeout_seconds = 90  # cold model load on a 27B Q3_K_M GGUF can take ~30-60s
@@ -76,18 +89,31 @@ feature_prefix = "feature"
 safety_test_before_main = false  # no dotnet test runner wired in MVP
 
 [unity]
-# Editor is user-managed (you open Unity yourself before swizz run
-# and keep it open across runs — matches normal Unity dev workflow).
-# editor_command is left empty so swizz's launcher is a no-op.
+# Auto-launch mode (editor_ready_probe = "lockfile"): swizz launches the
+# Editor at run start if it isn't already open, and reuses a warm one
+# otherwise — "already open" is detected via unity-project/Temp/UnityLockfile,
+# since the IvanMurzak package dials OUT to swizz's MCP server (nothing
+# listens on readiness_port to probe). -accept-apiupdate pre-empts the
+# API-updater "upgrade scripts?" modal, which otherwise blocks the Editor
+# main thread and null-responds every MCP tool call. close_editor_after_run
+# defaults false -> the Editor stays warm between runs. Blank editor_command
+# to go back to manual-Editor mode.
 #
-# IMPORTANT one-time setup inside Unity:
+# IMPORTANT one-time setup inside Unity (still required under auto-launch):
 #   Window → AI Game Developer → click "Stop" on the MCP server.
-# That sets KeepServerRunning=false in the package config, so Unity
-# stops auto-spawning its own MCP server on port 23118 every time
-# the Editor opens — otherwise it competes with the binary swizz
-# spawns via [mcp.unity-editor] in .swizz/profiles/unity-local.toml.
-editor_command = ""
-project_path   = "/home/ems/RiderProjects/swizz-unity/unity-project"
+# That sets KeepServerRunning=false in the package config, so Unity stops
+# auto-spawning its own MCP server on port 23118 every time the Editor opens
+# — otherwise it competes with the binary swizz spawns via [mcp.unity-editor]
+# in .swizz/profiles/unity-local.toml, and the Editor plugin may attach to
+# Unity's server instead of swizz's (every swizz tool call then returns
+# "Response data is null").
+editor_command         = "/home/ems/Unity/Hub/Editor/6000.3.10f1/Editor/Unity"
+editor_args            = ["-accept-apiupdate"]  # -projectPath is auto-added
+project_path           = "/home/ems/RiderProjects/swizz-unity/unity-project"
+launch_timeout_seconds = 240                    # cold boot + first import headroom
+readiness_port         = 23118                  # ignored in lockfile mode
+editor_ready_probe     = "lockfile"
+# close_editor_after_run defaults false -> Editor stays warm between runs
 
 [agents.artist]
 # 2D sprite art via ComfyUI. Lazily spawned when an artist task fires;
@@ -102,24 +128,28 @@ launch_dir             = "/home/ems/ComfyUI"
 launch_timeout_seconds = 60
 
 [cloud]
-# Always-cloud: every agent call is routed through DeepSeek's
-# OpenAI-compatible API (the local llama-server is bypassed entirely —
-# no budget check, no Generate call; [model.launch] is disabled above
-# so it isn't even spawned). require_approval=false so runs are
-# unattended; export DEEPSEEK_API_KEY in the runner's environment.
-# Set always = false to go back to local-first with DeepSeek as the
-# escalation fallback (and re-enable [model.launch]).
+# Escalation-FALLBACK mode (enabled=true, always=false) — matches
+# swizz-unity-2. Cloud (DeepSeek) fires ONLY when an agent self-reports
+# status=escalate or a prompt overflows the context budget; the whole
+# pipeline otherwise runs on the local Mac model above. (Was always=true =
+# every call to DeepSeek; flipped when this workspace moved to the Mac so it
+# runs local-first like swizz-unity-2.) require_approval=false keeps the run
+# unattended.
+#   DEEPSEEK_API_KEY must still be exported in the swizz-node env for the
+#   fallback path; with always=false an empty key only errors if escalation
+#   actually fires (a prompt overflow / self-reported escalate).
 enabled          = true
-always           = true
+always           = false
 provider         = "deepseek"
 require_approval = false
 
 [cloud.deepseek]
 # DeepSeek's OpenAI-compatible API (direct, per-token). Key read from
-# DEEPSEEK_API_KEY at runtime. deepseek-v4-pro is the larger V4 model
-# (1M context, 384K max output, thinking on by default; supports JSON
-# mode for structured agent output). Cheaper alternative:
-# deepseek-v4-flash (~3x lower output cost).
+# this env var at runtime. deepseek-v4-pro is the larger V4 model (1M
+# context, 384K max output, thinking on by default; supports JSON mode
+# for structured agent output). max_tokens (32768) is well under the
+# 384K ceiling — raise it if large architect/engineer outputs truncate.
+# Cheaper alternative: deepseek-v4-flash (~3x lower output cost).
 api_key_env     = "DEEPSEEK_API_KEY"
 model           = "deepseek-v4-pro"
 base_url        = ""
