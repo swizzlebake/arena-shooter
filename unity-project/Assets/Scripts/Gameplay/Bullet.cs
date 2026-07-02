@@ -9,6 +9,7 @@ namespace Gameplay
         [SerializeField] private float lifetime = 3f;
 
         private Rigidbody2D rb;
+        private Collider2D col;
         private float timer;
         private float damage;
 
@@ -16,6 +17,7 @@ namespace Gameplay
         {
             damage = bulletDamage;
             timer = 0f;
+            col.enabled = true;
             rb.linearVelocity = direction * (speed > 0f ? speed : bulletSpeed);
         }
 
@@ -24,6 +26,7 @@ namespace Gameplay
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+            col = GetComponent<Collider2D>();
         }
 
         private void Update()
@@ -41,6 +44,8 @@ namespace Gameplay
             if (damageable != null)
             {
                 damageable.TakeDamage(damage);
+                AudioManager.Instance?.PlayHitSFX();
+                col.enabled = false;
                 ReturnToPool();
             }
         }

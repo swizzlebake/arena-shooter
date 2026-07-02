@@ -50,6 +50,8 @@ namespace Gameplay
                         {
                             bulletScript.Initialize(playerController.AimDirection, 0f, bulletDamage);
                         }
+
+                        AudioManager.Instance?.PlayFireSFX();
                     }
                 }
             }
