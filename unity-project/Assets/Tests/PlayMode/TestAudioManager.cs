@@ -125,6 +125,7 @@ namespace Gameplay.Tests
 
         private class MockDamageable : MonoBehaviour, Game.IDamageable
         {
+            public bool IsAlive { get; set; } = true;
             public bool Damaged { get; private set; }
 
             public void TakeDamage(float amount) => Damaged = true;
