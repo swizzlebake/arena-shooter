@@ -1170,6 +1170,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Gameplay::Gameplay.GameManager
   score: 0
+  scorePerKill: 10
 --- !u!4 &1253115418
 Transform:
   m_ObjectHideFlags: 0
