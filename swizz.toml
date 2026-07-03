@@ -124,6 +124,11 @@ editor_ready_probe     = "lockfile"
 [agents.artist]
 # 2D sprite art via ComfyUI. Lazily spawned when an artist task fires;
 # the launcher we added in c5f2796 reaps it at run end.
+# asset_root was MISSING until the m8 Polish run: without it the artist wrote
+# PNGs to repo-root Assets/Art/ — outside unity-project/, invisible to Unity,
+# so prefabs kept null sprite refs. Matches unity-2's pattern (which uses
+# unity-project/Assets/Sprites); Art/ here because the merged m8 art lives there.
+asset_root             = "unity-project/Assets/Art"
 backend                = "comfyui"
 endpoint               = "http://localhost:8188"
 workflow               = ".swizz/workflows/sd15-simple.json"
