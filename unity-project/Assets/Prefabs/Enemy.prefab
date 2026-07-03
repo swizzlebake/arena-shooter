@@ -171,3 +171,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Gameplay::Gameplay.Enemy
   maxHealth: 2
   moveSpeed: 3
+  deathBurstPrefab: {fileID: 4551121982459430980, guid: 61aa03bbe2b347423b175fff062080c3, type: 3}

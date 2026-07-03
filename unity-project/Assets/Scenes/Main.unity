@@ -900,6 +900,8 @@ MonoBehaviour:
   moveSpeed: 5
   gameManager: {fileID: 1253115417}
   maxHealth: 3
+  hitFlashPrefab: {fileID: 8839898021379647062, guid: 24c213589c5997059af22fd140fdca23, type: 3}
+  deathBurstPrefab: {fileID: 4551121982459430980, guid: 61aa03bbe2b347423b175fff062080c3, type: 3}
 --- !u!61 &832886170
 BoxCollider2D:
   m_ObjectHideFlags: 0

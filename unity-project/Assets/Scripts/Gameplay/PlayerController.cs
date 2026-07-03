@@ -1,61 +1,77 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Gameplay
 {
-    public class PlayerController : MonoBehaviour, Game.IDamageable
+    public class PlayerController : MonoBehaviour
     {
+        private const float MovementThreshold = 0.01f;
+
+        [SerializeField] private InputActionReference moveAction;
+        [SerializeField] private InputActionReference aimAction;
         [SerializeField] private float moveSpeed = 5f;
-        [SerializeField] private float maxHealth = 10f;
+
+        [SerializeField] private GameManager gameManager;
+        [SerializeField] private float maxHealth = 3f;
         [SerializeField] private GameObject hitFlashPrefab;
         [SerializeField] private GameObject deathBurstPrefab;
 
         public Vector2 AimDirection { get; private set; }
-        public bool IsAlive { get; private set; } = true;
+        private float currentHealth;
 
         private Rigidbody2D rb;
-        private GameManager gameManager;
-        private SpriteRenderer spriteRenderer;
+
+        public void Configure(InputActionReference move, InputActionReference aim)
+        {
+            moveAction = move;
+            aimAction = aim;
+        }
+
+        public void Configure(GameManager manager) => gameManager = manager;
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
-            spriteRenderer = GetComponent<SpriteRenderer>();
-            gameManager = Object.FindFirstObjectByType<GameManager>();
+            currentHealth = maxHealth;
         }
 
         private void Update()
         {
-            if (!IsAlive) return;
-
-            Vector2 moveInput = new Vector2(
-                UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.W].isPressed ? 1f : 0f - (UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.S].isPressed ? 1f : 0f),
-                UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.A].isPressed ? 1f : 0f - (UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.D].isPressed ? 1f : 0f)
-            );
-
-            if (moveInput.sqrMagnitude > 0f)
+            if (moveAction?.action != null)
             {
-                Vector2 targetPos = rb.position + moveInput.normalized * moveSpeed * Time.deltaTime;
-                rb.MovePosition(targetPos);
+                Vector2 moveInput = moveAction.action.ReadValue<Vector2>();
+                if (moveInput.sqrMagnitude > MovementThreshold)
+                {
+                    Vector2 targetPos = rb.position + moveInput * moveSpeed * Time.deltaTime;
+                    rb.MovePosition(Game.ArenaBounds.Default.Clamp(targetPos));
+                }
             }
 
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(UnityEngine.InputSystem.Mouse.current.position.ReadValue());
-            AimDirection = (mousePos - (Vector2)transform.position).normalized;
+            if (aimAction?.action != null)
+            {
+                Vector2 aimInput = aimAction.action.ReadValue<Vector2>();
+                if (aimInput.sqrMagnitude > MovementThreshold)
+                {
+                    AimDirection = aimInput.normalized;
+                    float angle = Mathf.Atan2(AimDirection.y, AimDirection.x) * Mathf.Rad2Deg;
+                    transform.rotation = Quaternion.Euler(0f, 0f, angle);
+                }
+            }
         }
 
         public void TakeDamage(float amount)
         {
-            if (!IsAlive) return;
+            if (currentHealth <= 0f) return;
 
-            maxHealth -= amount;
+            currentHealth -= amount;
 
             if (hitFlashPrefab != null)
             {
-                Object.Instantiate(hitFlashPrefab, transform.position, Quaternion.identity);
+                Instantiate(hitFlashPrefab, transform.position, Quaternion.identity);
             }
-
             AudioManager.Instance?.PlayHitSFX();
 
-            if (maxHealth <= 0f)
+            if (currentHealth <= 0f)
             {
                 Die();
             }
@@ -63,26 +79,26 @@ namespace Gameplay
 
         private void Die()
         {
-            IsAlive = false;
-
             if (deathBurstPrefab != null)
             {
-                Object.Instantiate(deathBurstPrefab, transform.position, Quaternion.identity);
+                Instantiate(deathBurstPrefab, transform.position, Quaternion.identity);
             }
-
             AudioManager.Instance?.PlayDeathSFX();
 
             if (gameManager != null)
             {
-                gameManager.OnPlayerDied();
+                gameManager.TriggerGameOver();
             }
+            Destroy(gameObject);
         }
 
-        public void Configure(float maxHealth, float moveSpeed)
+        private void OnTriggerEnter2D(Collider2D other)
         {
-            this.maxHealth = maxHealth;
-            this.moveSpeed = moveSpeed;
-            IsAlive = true;
+            var enemy = other.GetComponent<Enemy>();
+            if (enemy != null && enemy.IsAlive)
+            {
+                TakeDamage(1f);
+            }
         }
     }
 }

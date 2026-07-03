@@ -1,38 +1,59 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Gameplay
 {
+    public interface IGameOverPresenter
+    {
+        void Show();
+        void OnRestartButtonClicked();
+    }
+
     public class GameManager : MonoBehaviour
     {
-        [SerializeField] private float scorePerKill = 10f;
+        [SerializeField] private int score;
+        [SerializeField] private IGameOverPresenter gameOverPresenter;
+        [SerializeField] private int scorePerKill = 10;
 
-        public float Score { get; private set; }
-        public float ScorePerKill => scorePerKill;
+        public int Score => score;
         public bool IsGameOver { get; private set; }
+        public int ScorePerKill => scorePerKill;
 
-        private EnemySpawner enemySpawner;
-
-        private void Awake()
+        public void Configure(IGameOverPresenter presenter)
         {
-            enemySpawner = Object.FindFirstObjectByType<EnemySpawner>();
+            gameOverPresenter = presenter;
         }
 
         private void Start()
         {
-            Score = 0f;
-            IsGameOver = false;
-            enemySpawner?.StartSpawning();
+            AudioManager.Instance?.PlayMusic();
         }
 
-        public void AddScore(float amount)
+        public void AddScore(int amount)
         {
-            Score += amount;
+            if (IsGameOver) return;
+            score += amount;
         }
 
-        public void OnPlayerDied()
+        public void TriggerGameOver()
         {
+            if (IsGameOver) return;
             IsGameOver = true;
-            enemySpawner?.StopSpawning();
+            AudioManager.Instance?.StopMusic();
+            gameOverPresenter?.Show();
+        }
+
+        public void RestartGame()
+        {
+            gameOverPresenter?.OnRestartButtonClicked();
+        }
+
+        private void Update()
+        {
+            if (IsGameOver && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+            {
+                RestartGame();
+            }
         }
     }
 }
