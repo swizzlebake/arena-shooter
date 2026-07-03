@@ -28,8 +28,8 @@ namespace Gameplay
             if (!IsAlive) return;
 
             Vector2 moveInput = new Vector2(
-                UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.w].isPressed ? 1f : 0f - (UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.s].isPressed ? 1f : 0f),
-                UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.a].isPressed ? 1f : 0f - (UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.d].isPressed ? 1f : 0f)
+                UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.W].isPressed ? 1f : 0f - (UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.S].isPressed ? 1f : 0f),
+                UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.A].isPressed ? 1f : 0f - (UnityEngine.InputSystem.Keyboard.current[UnityEngine.InputSystem.Key.D].isPressed ? 1f : 0f)
             );
 
             if (moveInput.sqrMagnitude > 0f)

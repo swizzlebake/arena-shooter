@@ -1,59 +1,38 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace Gameplay
 {
-    public interface IGameOverPresenter
-    {
-        void Show();
-        void OnRestartButtonClicked();
-    }
-
     public class GameManager : MonoBehaviour
     {
-        [SerializeField] private int score;
-        [SerializeField] private IGameOverPresenter gameOverPresenter;
-        [SerializeField] private int scorePerKill = 10;
+        [SerializeField] private float scorePerKill = 10f;
 
-        public int Score => score;
+        public float Score { get; private set; }
+        public float ScorePerKill => scorePerKill;
         public bool IsGameOver { get; private set; }
-        public int ScorePerKill => scorePerKill;
 
-        public void Configure(IGameOverPresenter presenter)
+        private EnemySpawner enemySpawner;
+
+        private void Awake()
         {
-            gameOverPresenter = presenter;
+            enemySpawner = Object.FindFirstObjectByType<EnemySpawner>();
         }
 
         private void Start()
         {
-            AudioManager.Instance?.PlayMusic();
+            Score = 0f;
+            IsGameOver = false;
+            enemySpawner?.StartSpawning();
         }
 
-        public void AddScore(int amount)
+        public void AddScore(float amount)
         {
-            if (IsGameOver) return;
-            score += amount;
+            Score += amount;
         }
 
-        public void TriggerGameOver()
+        public void OnPlayerDied()
         {
-            if (IsGameOver) return;
             IsGameOver = true;
-            AudioManager.Instance?.StopMusic();
-            gameOverPresenter?.Show();
-        }
-
-        public void RestartGame()
-        {
-            gameOverPresenter?.OnRestartButtonClicked();
-        }
-
-        private void Update()
-        {
-            if (IsGameOver && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
-            {
-                RestartGame();
-            }
+            enemySpawner?.StopSpawning();
         }
     }
 }
