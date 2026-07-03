@@ -6,6 +6,7 @@ namespace Gameplay
     {
         [SerializeField] private float maxHealth = 2f;
         [SerializeField] private float moveSpeed = 3f;
+        [SerializeField] private GameObject deathBurstPrefab;
 
         public bool IsAlive { get; private set; } = true;
 
@@ -60,6 +61,11 @@ namespace Gameplay
             IsAlive = false;
 
             AudioManager.Instance?.PlayDeathSFX();
+
+            if (deathBurstPrefab != null)
+            {
+                Object.Instantiate(deathBurstPrefab, transform.position, Quaternion.identity);
+            }
 
             if (enemySpawner != null)
             {

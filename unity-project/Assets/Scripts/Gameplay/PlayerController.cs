@@ -13,6 +13,8 @@ namespace Gameplay
 
         [SerializeField] private GameManager gameManager;
         [SerializeField] private float maxHealth = 3f;
+        [SerializeField] private GameObject hitFlashPrefab;
+        [SerializeField] private GameObject deathBurstPrefab;
 
         public Vector2 AimDirection { get; private set; }
         private float currentHealth;
@@ -62,6 +64,13 @@ namespace Gameplay
             if (currentHealth <= 0f) return;
 
             currentHealth -= amount;
+
+            if (hitFlashPrefab != null)
+            {
+                Instantiate(hitFlashPrefab, transform.position, Quaternion.identity);
+            }
+            AudioManager.Instance?.PlayHitSFX();
+
             if (currentHealth <= 0f)
             {
                 Die();
@@ -70,6 +79,12 @@ namespace Gameplay
 
         private void Die()
         {
+            if (deathBurstPrefab != null)
+            {
+                Instantiate(deathBurstPrefab, transform.position, Quaternion.identity);
+            }
+            AudioManager.Instance?.PlayDeathSFX();
+
             if (gameManager != null)
             {
                 gameManager.TriggerGameOver();
