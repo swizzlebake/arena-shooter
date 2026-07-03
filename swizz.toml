@@ -54,8 +54,14 @@ gpu_split = 1.0
 # the 64 GB Mac — verify tok/s on the first run).
 num_ctx = 65536
 num_predict = 32768
-temperature = 0.15
-top_p = 0.9
+# 0.35/0.8 nudged toward Qwen's instruct-mode recs (temp 0.7 / top_p 0.8):
+# near-greedy decoding (was 0.15) is what Qwen warns makes Qwen3 prone to
+# endless-repetition loops. Kept below 0.7 for code determinism. These two are
+# the ONLY sampler dials swizz forwards (internal/model/openai.go request
+# struct) — top_k=20, min_p=0, presence_penalty≈1.5, repeat_penalty OFF must be
+# set server-side in LM Studio's per-model config on emsmac (and re-pin ctx).
+temperature = 0.35
+top_p = 0.8
 stream = true
 stream_mode = "summary"
 keep_alive = "30m"
