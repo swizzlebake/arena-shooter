@@ -25,14 +25,20 @@ test_command = ""
 # Inference runs on the Mac Studio (emsmac.local, 64 GB) via LM Studio's
 # OpenAI-compatible server (MLX runtime) — the SAME backend as swizz-unity-2.
 # This workspace was moved off its local 12 GB llama-server (qwen3.6-27b Q3)
-# onto the Mac. The WHOLE pipeline now runs one model — qwen3.6-27b-ud-mlx — so
-# there is NO per-agent model swap: the prior split (35b-a3b for most agents,
-# 27b only for the editor-engineer) forced an LM Studio JIT model reload around
-# the wiring step, and that single-model-at-a-time swap returned an HTTP 500
-# mid-run and aborted the task. One model everywhere = no swap, no swap-500.
-# Load qwen3.6-27b-ud-mlx in LM Studio's Developer / Local Server tab at the
-# 65536 context below, "Serve on Local Network", Start Server; confirm the id
-# with: curl http://emsmac.local:1234/v1/models
+# onto the Mac. The WHOLE pipeline now runs one model — qwen/qwen3.6-35b-a3b
+# (MoE, 8-bit MLX) — the same model swizz-unity-2 runs (unity-2's config names it
+# via the qwen3.6-35b-a3b-8bit-mlx alias; use whatever id `curl .../v1/models`
+# reports as loaded). There is NO per-agent model
+# swap: every agent (incl. the editor-engineer wiring step) is on this same one
+# model, because the Mac serves one model at a time and any per-agent model that
+# differs forces an LM Studio JIT reload mid-run — that swap returned an HTTP 500
+# around the wiring step and aborted the task (m7). One model everywhere = no
+# swap, no swap-500. (Briefly ran qwen3.6-27b-ud-mlx for that same "one model"
+# reason; back on 35b-a3b now that the Mac serves it and unity-2 has validated
+# local 35b-a3b wiring — the wiring step no longer needs a cloud pin.)
+# Load qwen/qwen3.6-35b-a3b in LM Studio's Developer / Local Server tab at
+# the 65536 context below, "Serve on Local Network", Start Server; confirm the
+# id with: curl http://emsmac.local:1234/v1/models
 #
 # IMPORTANT: the Mac serves ONE model at a time — do NOT run swizz-unity and
 # swizz-unity-2 against it concurrently; a second run contends for the single
@@ -45,7 +51,7 @@ test_command = ""
 # [model.launch] below.
 provider = "openai"
 endpoint = "http://emsmac.local:1234"
-default_model = "qwen3.6-27b-ud-mlx"
+default_model = "qwen/qwen3.6-35b-a3b"
 gpu_split = 1.0
 # num_ctx=65536 / num_predict=32768 matched to swizz-unity-2: the overflow guard
 # thresholds the prompt against (num_ctx - num_predict), so num_ctx must stay
@@ -54,8 +60,14 @@ gpu_split = 1.0
 # the 64 GB Mac — verify tok/s on the first run).
 num_ctx = 65536
 num_predict = 32768
-temperature = 0.15
-top_p = 0.9
+# 0.35/0.8 nudged toward Qwen's instruct-mode recs (temp 0.7 / top_p 0.8):
+# near-greedy decoding (was 0.15) is what Qwen warns makes Qwen3 prone to
+# endless-repetition loops. Kept below 0.7 for code determinism. These two are
+# the ONLY sampler dials swizz forwards (internal/model/openai.go request
+# struct) — top_k=20, min_p=0, presence_penalty≈1.5, repeat_penalty OFF must be
+# set server-side in LM Studio's per-model config on emsmac (and re-pin ctx).
+temperature = 0.35
+top_p = 0.8
 stream = true
 stream_mode = "summary"
 keep_alive = "30m"
@@ -118,6 +130,11 @@ editor_ready_probe     = "lockfile"
 [agents.artist]
 # 2D sprite art via ComfyUI. Lazily spawned when an artist task fires;
 # the launcher we added in c5f2796 reaps it at run end.
+# asset_root was MISSING until the m8 Polish run: without it the artist wrote
+# PNGs to repo-root Assets/Art/ — outside unity-project/, invisible to Unity,
+# so prefabs kept null sprite refs. Matches unity-2's pattern (which uses
+# unity-project/Assets/Sprites); Art/ here because the merged m8 art lives there.
+asset_root             = "unity-project/Assets/Art"
 backend                = "comfyui"
 endpoint               = "http://localhost:8188"
 workflow               = ".swizz/workflows/sd15-simple.json"
