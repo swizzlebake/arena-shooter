@@ -90,7 +90,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
 --- !u!114 &2604915075295516135
 MonoBehaviour:
@@ -104,4 +104,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e220ead2b2a1dd3b9039a329d4f3349, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Gameplay::Gameplay.VFXLifetime
-  lifetime: 0.4
+  lifetime: 0.5
