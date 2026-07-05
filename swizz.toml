@@ -79,6 +79,13 @@ tool_mode = "native"
 # No-token stall watchdog (seconds): aborts + restarts a wedged stream once, then
 # fails clearly. 300 sits above worst-case prefill on a near-full 65536 context.
 stall_timeout_seconds = 300
+# Productive tool-call budget for the MCP multi-turn loop. Default is 16; MCP
+# extensions (shader-engineer, unity-editor-engineer, unity-qa) floor at 32.
+# Multi-prefab VFX creation legitimately runs past 32 calls and was getting
+# guillotined mid-task, so raise the ceiling here — the extension runner honors
+# this as of swizz 8ca982b (it's a floor, not a hard cap). Error turns are
+# forgiven on top, up to 2× before the hard ceiling.
+tool_call_turns = 64
 
 [model.launch]
 # DISABLED for the all-codex run: with [cloud].always = true every agent
